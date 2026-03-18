@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mace auf der Linzer Straße</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Titel-Screen -->
+    <div id="title-screen" class="screen active">
+        <div class="title-content">
+            <h1 class="title-main">MACE</h1>
+            <h2 class="title-sub">auf der Linzer Straße</h2>
+            <div class="title-tagline">Ein Abenteuer der besonderen Art</div>
+            <div class="fake-loading" id="fake-loading">
+                <div class="loading-bar"><div class="loading-fill" id="loading-fill"></div></div>
+                <div class="loading-text" id="loading-text">Lade Würde herunter...</div>
+            </div>
+            <div class="start-prompt" id="start-prompt" style="display:none">
+                Drücke ENTER zum Starten
+            </div>
+        </div>
+    </div>
+
+    <!-- Intro Cutscene -->
+    <div id="intro-screen" class="screen">
+        <div class="intro-content">
+            <div class="intro-text" id="intro-text"></div>
+            <div class="intro-skip">ENTER zum Überspringen</div>
+        </div>
+    </div>
+
+    <!-- Game Canvas -->
+    <canvas id="game-canvas"></canvas>
+
+    <!-- HUD -->
+    <div id="hud" class="screen">
+        <div class="hud-top">
+            <div class="hud-stats">
+                <div class="stat-item">
+                    <span class="stat-icon">💶</span>
+                    <span class="stat-label">Geld:</span>
+                    <span class="stat-value" id="hud-money">150€</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">😏</span>
+                    <span class="stat-label">Charm:</span>
+                    <span class="stat-value" id="hud-charm">3/10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">😰</span>
+                    <span class="stat-label">Verzweiflung:</span>
+                    <span class="stat-value" id="hud-desperation">0/10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">😳</span>
+                    <span class="stat-label">Peinlichkeit:</span>
+                    <span class="stat-value" id="hud-embarrassment">0/10</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-icon">🎩</span>
+                    <span class="stat-label">Selbstrespekt:</span>
+                    <span class="stat-value" id="hud-selfrespect">10/10</span>
+                </div>
+            </div>
+            <div class="hud-time">
+                <span class="time-icon">🕐</span>
+                <span class="time-value" id="hud-time">02:00</span>
+            </div>
+        </div>
+        <div class="hud-inventory" id="hud-inventory">
+            <span class="inv-label">Inventar:</span>
+            <span class="inv-items" id="inv-items"></span>
+        </div>
+    </div>
+
+    <!-- Dialog Box -->
+    <div id="dialog-box" class="screen">
+        <div class="dialog-container">
+            <div class="dialog-name" id="dialog-name">???</div>
+            <div class="dialog-text" id="dialog-text"></div>
+            <div class="dialog-choices" id="dialog-choices"></div>
+        </div>
+    </div>
+
+    <!-- Mini-Game: Feilschen -->
+    <div id="minigame-haggle" class="screen">
+        <div class="haggle-container">
+            <div class="haggle-title">FEILSCHEN!</div>
+            <div class="haggle-instruction">Drücke SPACE im grünen Bereich!</div>
+            <div class="haggle-bar">
+                <div class="haggle-track" id="haggle-track">
+                    <div class="haggle-zone" id="haggle-zone"></div>
+                    <div class="haggle-slider" id="haggle-slider"></div>
+                </div>
+            </div>
+            <div class="haggle-price" id="haggle-price">Preis: ???€</div>
+        </div>
+    </div>
+
+    <!-- Quick-Time Event -->
+    <div id="qte-overlay" class="screen">
+        <div class="qte-container">
+            <div class="qte-title" id="qte-title">POLIZEI!</div>
+            <div class="qte-instruction" id="qte-instruction">Drücke die Tasten!</div>
+            <div class="qte-keys" id="qte-keys"></div>
+            <div class="qte-timer-bar"><div class="qte-timer-fill" id="qte-timer-fill"></div></div>
+        </div>
+    </div>
+
+    <!-- Money Pickup Mini-Game -->
+    <div id="minigame-money" class="screen">
+        <div class="money-container">
+            <div class="money-title">GELD AUFSAMMELN!</div>
+            <div class="money-instruction">Klicke auf die Scheine!</div>
+            <div class="money-field" id="money-field"></div>
+            <div class="money-timer-bar"><div class="money-timer-fill" id="money-timer-fill"></div></div>
+        </div>
+    </div>
+
+    <!-- Phone Call Overlay -->
+    <div id="phone-overlay" class="screen">
+        <div class="phone-container">
+            <div class="phone-caller">📱 MAMA ruft an...</div>
+            <div class="phone-text" id="phone-text"></div>
+            <div class="phone-choices" id="phone-choices"></div>
+        </div>
+    </div>
+
+    <!-- Achievement Popup -->
+    <div id="achievement-popup" class="achievement">
+        <div class="achievement-icon">🏆</div>
+        <div class="achievement-text">
+            <div class="achievement-title">Achievement Unlocked</div>
+            <div class="achievement-desc" id="achievement-desc">Rock Bottom</div>
+        </div>
+    </div>
+
+    <!-- End Screen -->
+    <div id="end-screen" class="screen">
+        <div class="end-content">
+            <div class="end-newspaper">
+                <div class="newspaper-header">WIENER MORGENBLATT</div>
+                <div class="newspaper-date">Mittwoch, 18. März 2026</div>
+                <div class="newspaper-headline" id="end-headline">SCHLAGZEILE</div>
+                <div class="newspaper-body" id="end-body">Artikeltext...</div>
+            </div>
+            <div class="end-stats">
+                <div class="end-grade" id="end-grade">Note: ?</div>
+                <div class="end-ending" id="end-ending">Ende: ???</div>
+                <div class="end-final-stats" id="end-final-stats"></div>
+            </div>
+            <div class="end-restart">Drücke ENTER für Neustart</div>
+        </div>
+    </div>
+
+    <!-- Screen Shake Container -->
+    <div id="screen-shake-wrapper">
+    </div>
+
+    <script src="characters.js"></script>
+    <script src="renderer.js"></script>
+    <script src="events.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
