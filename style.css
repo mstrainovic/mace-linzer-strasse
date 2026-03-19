@@ -44,6 +44,8 @@ canvas {
     justify-content: center;
     align-items: center;
     flex-direction: column;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 
 .title-content {
@@ -125,6 +127,8 @@ canvas {
     background: #000;
     justify-content: center;
     align-items: center;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 
 .intro-content {
@@ -268,6 +272,8 @@ canvas {
     text-align: left;
     font-family: 'Courier New', monospace;
     font-size: 0.95em;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .dialog-choice:hover {
@@ -503,6 +509,8 @@ canvas {
     color: #aaffaa;
     transition: transform 0.1s;
     user-select: none;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .money-bill:hover { transform: scale(1.2); }
@@ -582,6 +590,8 @@ canvas {
     align-items: center;
     background: #f5f0e0;
     color: #222;
+    touch-action: manipulation;
+    cursor: pointer;
 }
 
 .end-content {

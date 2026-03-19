@@ -754,6 +754,64 @@ const Renderer = {
         ctx.fill();
     },
 
+    drawNPC_lehel(ctx, bob) {
+        // Hungarian banker in dark suit, smartphone in hand
+        // Suit jacket (dark navy)
+        ctx.fillStyle = '#1a2a4a';
+        ctx.fillRect(-9, -55 + bob, 18, 35);
+        // White shirt front
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(-4, -54 + bob, 8, 12);
+        // Red tie (Hungarian colors)
+        ctx.fillStyle = '#c0392b';
+        ctx.fillRect(-1, -53 + bob, 2, 16);
+        // Lapels
+        ctx.fillStyle = '#1a2a4a';
+        ctx.fillRect(-9, -55 + bob, 5, 14);
+        ctx.fillRect(4, -55 + bob, 5, 14);
+        // Head
+        ctx.fillStyle = '#c8a87a';
+        ctx.beginPath();
+        ctx.arc(0, -65 + bob, 11, 0, Math.PI * 2);
+        ctx.fill();
+        // Slicked-back dark hair
+        ctx.fillStyle = '#111';
+        ctx.fillRect(-11, -77 + bob, 22, 13);
+        ctx.fillRect(-11, -70 + bob, 3, 7);
+        ctx.fillRect(8, -70 + bob, 3, 7);
+        // Glasses (banker style)
+        ctx.strokeStyle = '#8B7355';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-8, -68 + bob, 7, 4);
+        ctx.strokeRect(-1, -68 + bob, 7, 4);
+        ctx.beginPath(); ctx.moveTo(-1, -66 + bob); ctx.lineTo(0, -66 + bob); ctx.stroke();
+        // Eyes
+        ctx.fillStyle = '#333';
+        ctx.fillRect(-6, -68 + bob, 3, 3);
+        ctx.fillRect(1, -68 + bob, 3, 3);
+        // Smartphone (right hand, held up)
+        ctx.fillStyle = '#111';
+        ctx.fillRect(10, -40 + bob, 7, 11);
+        ctx.fillStyle = '#4a9eff';
+        ctx.fillRect(11, -39 + bob, 5, 9);
+        // Briefcase (left hand)
+        ctx.fillStyle = '#6B3410';
+        ctx.fillRect(-21, -26 + bob, 13, 9);
+        ctx.fillStyle = '#8B4513';
+        ctx.fillRect(-18, -29 + bob, 7, 4);
+        ctx.strokeStyle = '#5a2a00';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-21, -26 + bob, 13, 9);
+        // Legs (suit trousers)
+        ctx.fillStyle = '#1a2a4a';
+        ctx.fillRect(-7, -20 + bob, 5, 20);
+        ctx.fillRect(2, -20 + bob, 5, 20);
+        // Shiny black shoes
+        ctx.fillStyle = '#050505';
+        ctx.fillRect(-8, -2 + bob, 7, 4);
+        ctx.fillRect(1, -2 + bob, 7, 4);
+    },
+
     drawNPC_erscheinung(ctx, bob) {
         // Suspiciously perfect, glowing
         const glow = Math.sin(Date.now() * 0.003) * 0.2 + 0.8;
