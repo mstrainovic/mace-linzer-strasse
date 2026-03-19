@@ -76,6 +76,90 @@ const Game = {
         document.addEventListener('keyup', (e) => {
             this.keys[e.key] = false;
         });
+
+        // Screen tap handlers — always active (keyboard + touch + mouse)
+        const titleScreenFn = (e) => {
+            if (this.state === 'title') {
+                e.preventDefault();
+                // Skip remaining loading if still in progress
+                this.loadingPhase = this.loadingMessages.length;
+                this.startIntro();
+            }
+        };
+        document.getElementById('title-screen').addEventListener('touchstart', titleScreenFn, { passive: false });
+        document.getElementById('title-screen').addEventListener('click', titleScreenFn);
+
+        const introScreenFn = (e) => {
+            if (this.state === 'intro') {
+                e.preventDefault();
+                this.startGame();
+            }
+        };
+        document.getElementById('intro-screen').addEventListener('touchstart', introScreenFn, { passive: false });
+        document.getElementById('intro-screen').addEventListener('click', introScreenFn);
+
+        this._bindTouchControls();
+    },
+
+    // ===== TOUCH HELPERS =====
+    _isTouchDevice() {
+        return ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    },
+
+    _showMovementControls(visible) {
+        if (!this._isTouchDevice()) return;
+        const tc = document.getElementById('touch-controls');
+        if (tc) tc.style.display = visible ? 'flex' : 'none';
+        // Shift inventory bar up when controls are visible
+        const inv = document.getElementById('hud-inventory');
+        if (inv) inv.classList.toggle('touch-shifted', visible);
+    },
+
+    _showHaggleTouchBtn(visible) {
+        if (!this._isTouchDevice()) return;
+        const btn = document.getElementById('touch-haggle-btn');
+        if (btn) btn.style.display = visible ? 'block' : 'none';
+    },
+
+    _bindTouchControls() {
+        if (!this._isTouchDevice()) return;
+
+        const leftBtn = document.getElementById('touch-left');
+        const rightBtn = document.getElementById('touch-right');
+        const interactBtn = document.getElementById('touch-interact');
+        const haggleBtn = document.getElementById('touch-haggle-btn');
+
+        // Directional buttons: simulate held keys
+        const addHoldBtn = (btn, key) => {
+            const start = (e) => { e.preventDefault(); this.keys[key] = true; btn.classList.add('pressed'); };
+            const end = (e) => { e.preventDefault(); this.keys[key] = false; btn.classList.remove('pressed'); };
+            btn.addEventListener('touchstart', start, { passive: false });
+            btn.addEventListener('touchend', end, { passive: false });
+            btn.addEventListener('touchcancel', end, { passive: false });
+            btn.addEventListener('mousedown', start);
+            btn.addEventListener('mouseup', end);
+            btn.addEventListener('mouseleave', end);
+        };
+        addHoldBtn(leftBtn, 'ArrowLeft');
+        addHoldBtn(rightBtn, 'ArrowRight');
+
+        // Interact button: tap to interact
+        const interactFn = (e) => { e.preventDefault(); this.tryInteract(); };
+        interactBtn.addEventListener('touchstart', interactFn, { passive: false });
+        interactBtn.addEventListener('click', interactFn);
+
+        // Haggle tap button
+        const haggleFn = (e) => { e.preventDefault(); this.hagglePress(); };
+        haggleBtn.addEventListener('touchstart', haggleFn, { passive: false });
+        haggleBtn.addEventListener('click', haggleFn);
+
+        // Update hint texts for touch
+        const startPrompt = document.getElementById('start-prompt');
+        if (startPrompt) startPrompt.textContent = 'Tippe zum Starten';
+        const introSkip = document.querySelector('.intro-skip');
+        if (introSkip) introSkip.textContent = 'Tippe zum Überspringen';
+        const endRestart = document.querySelector('.end-restart');
+        if (endRestart) endRestart.textContent = 'Tippe für Neustart';
     },
 
     handleKeyPress(key, e) {
@@ -91,7 +175,8 @@ const Game = {
 
         switch (this.state) {
             case 'title':
-                if (key === 'Enter' && this.loadingPhase >= this.loadingMessages.length) {
+                if (key === 'Enter') {
+                    this.loadingPhase = this.loadingMessages.length;
                     this.startIntro();
                 }
                 break;
@@ -134,7 +219,9 @@ const Game = {
 
     advanceLoading() {
         if (this.loadingPhase >= this.loadingMessages.length) {
-            document.getElementById('start-prompt').style.display = 'block';
+            const prompt = document.getElementById('start-prompt');
+            prompt.textContent = 'Tippe oder ENTER zum Starten';
+            prompt.style.display = 'block';
             document.getElementById('fake-loading').style.display = 'none';
             return;
         }
@@ -214,6 +301,7 @@ const Game = {
 
         RandomEvents.init();
         this.updateHUD();
+        this._showMovementControls(true);
     },
 
     // ===== GAME LOOP =====
@@ -382,6 +470,7 @@ const Game = {
 
     showDialogUI(name, text, choices, npc) {
         this.state = 'dialog';
+        this._showMovementControls(false);
         const dialogBox = document.getElementById('dialog-box');
         const dialogName = document.getElementById('dialog-name');
         const dialogText = document.getElementById('dialog-text');
@@ -504,7 +593,7 @@ const Game = {
     handleAction(action, npc) {
         switch (action) {
             case 'haggle':
-                this.closeDialog();
+                this.closeDialog(false);
                 this.startHaggle(npc);
                 break;
             case 'end_gentleman':
@@ -544,7 +633,7 @@ const Game = {
         }
     },
 
-    closeDialog() {
+    closeDialog(showMovementControls = true) {
         clearInterval(this.typewriterInterval);
         const dialogBox = document.getElementById('dialog-box');
         if (this._skipHandler) {
@@ -554,6 +643,7 @@ const Game = {
         dialogBox.classList.remove('active');
         this.state = 'playing';
         this.currentNPCKey = null;
+        if (showMovementControls) this._showMovementControls(true);
     },
 
     // Generic dialog for events
@@ -565,6 +655,7 @@ const Game = {
         }));
 
         this.state = 'dialog';
+        this._showMovementControls(false);
         const dialogBox = document.getElementById('dialog-box');
         const dialogName = document.getElementById('dialog-name');
         const dialogText = document.getElementById('dialog-text');
@@ -651,6 +742,8 @@ const Game = {
     // ===== HAGGLE MINI-GAME =====
     startHaggle(npc) {
         this.state = 'minigame';
+        this._showMovementControls(false);
+        this._showHaggleTouchBtn(true);
         const overlay = document.getElementById('minigame-haggle');
         overlay.classList.add('active');
 
@@ -696,6 +789,7 @@ const Game = {
         if (d.position >= d.zoneStart && d.position <= d.zoneEnd) {
             // Success!
             d.active = false;
+            this._showHaggleTouchBtn(false);
             const npc = d.npc;
             const discount = Math.floor(npc.price * 0.2);
             const finalPrice = npc.price - discount;
@@ -722,6 +816,7 @@ const Game = {
 
             if (d.attempts >= d.maxAttempts) {
                 d.active = false;
+                this._showHaggleTouchBtn(false);
                 document.getElementById('minigame-haggle').classList.remove('active');
 
                 // Price goes up 10%
@@ -739,22 +834,16 @@ const Game = {
     // ===== QTE MINI-GAME =====
     startQTE(title, instruction, keys, timeLimit, callback) {
         this.state = 'minigame';
+        this._showMovementControls(false);
         const overlay = document.getElementById('qte-overlay');
         overlay.classList.add('active');
 
         document.getElementById('qte-title').textContent = title;
-        document.getElementById('qte-instruction').textContent = instruction;
+        document.getElementById('qte-instruction').textContent =
+            this._isTouchDevice() ? 'Tippe die Tasten in der richtigen Reihenfolge!' : instruction;
 
         const keysContainer = document.getElementById('qte-keys');
         keysContainer.innerHTML = '';
-
-        keys.forEach(k => {
-            const keyEl = document.createElement('div');
-            keyEl.className = 'qte-key';
-            keyEl.textContent = k;
-            keyEl.id = 'qte-key-' + k;
-            keysContainer.appendChild(keyEl);
-        });
 
         this.qteData = {
             keys: [...keys],
@@ -765,40 +854,53 @@ const Game = {
             active: true
         };
 
-        // Highlight first key
-        document.getElementById('qte-key-' + keys[0]).classList.add('active');
-
-        // Key handler
-        const qteHandler = (e) => {
+        // Shared press logic (used by keyboard and touch)
+        const pressKey = (keyStr) => {
             if (!this.qteData || !this.qteData.active) return;
             const expected = this.qteData.keys[this.qteData.currentIndex];
 
-            if (e.key.toLowerCase() === expected.toLowerCase()) {
-                // Success for this key
+            if (keyStr.toLowerCase() === expected.toLowerCase()) {
                 document.getElementById('qte-key-' + expected).classList.remove('active');
                 document.getElementById('qte-key-' + expected).classList.add('success');
                 this.qteData.currentIndex++;
 
                 if (this.qteData.currentIndex >= this.qteData.keys.length) {
-                    // All keys pressed!
                     this.qteData.active = false;
                     document.removeEventListener('keydown', qteHandler);
                     setTimeout(() => {
                         overlay.classList.remove('active');
                         this.state = 'playing';
+                        this._showMovementControls(true);
                         callback(true);
                     }, 500);
                 } else {
                     document.getElementById('qte-key-' + this.qteData.keys[this.qteData.currentIndex]).classList.add('active');
                 }
             } else {
-                // Wrong key
                 const currentKey = this.qteData.keys[this.qteData.currentIndex];
                 const el = document.getElementById('qte-key-' + currentKey);
                 el.classList.add('fail');
                 setTimeout(() => el.classList.remove('fail'), 200);
             }
         };
+
+        keys.forEach(k => {
+            const keyEl = document.createElement('div');
+            keyEl.className = 'qte-key';
+            keyEl.textContent = k;
+            keyEl.id = 'qte-key-' + k;
+            // Touch/click support: tapping the correct key counts as pressing it
+            const tapFn = (e) => { e.preventDefault(); pressKey(k); };
+            keyEl.addEventListener('touchstart', tapFn, { passive: false });
+            keyEl.addEventListener('click', tapFn);
+            keysContainer.appendChild(keyEl);
+        });
+
+        // Highlight first key
+        document.getElementById('qte-key-' + keys[0]).classList.add('active');
+
+        // Keyboard handler
+        const qteHandler = (e) => pressKey(e.key);
         document.addEventListener('keydown', qteHandler);
 
         // Timer
@@ -814,6 +916,7 @@ const Game = {
                 document.removeEventListener('keydown', qteHandler);
                 overlay.classList.remove('active');
                 this.state = 'playing';
+                this._showMovementControls(true);
                 callback(false);
                 return;
             }
@@ -948,7 +1051,8 @@ const Game = {
     triggerEnding(endingType) {
         if (this.state === 'ending') return; // Prevent double-trigger
         this.state = 'ending';
-        this.closeDialog();
+        this.closeDialog(false);
+        this._showMovementControls(false);
         document.getElementById('hud').classList.remove('active');
         document.getElementById('minigame-haggle').classList.remove('active');
         document.getElementById('qte-overlay').classList.remove('active');
@@ -1035,16 +1139,18 @@ const Game = {
                 `Verzweiflung: ${PlayerStats.desperation}/10 | Peinlichkeit: ${PlayerStats.embarrassment}/10 | ` +
                 `Selbstrespekt: ${PlayerStats.selfRespect}/10`;
 
-            // Restart handler
-            const restartHandler = (e) => {
-                if (e.key === 'Enter') {
-                    document.removeEventListener('keydown', restartHandler);
-                    endScreen.classList.remove('active');
-                    this.canvas.style.display = 'none';
-                    this.startTitleScreen();
-                }
+            // Restart handler (keyboard + touch)
+            const doRestart = () => {
+                document.removeEventListener('keydown', restartHandler);
+                endScreen.removeEventListener('click', tapRestart);
+                endScreen.classList.remove('active');
+                this.canvas.style.display = 'none';
+                this.startTitleScreen();
             };
+            const restartHandler = (e) => { if (e.key === 'Enter') doRestart(); };
+            const tapRestart = () => doRestart();
             document.addEventListener('keydown', restartHandler);
+            if (this._isTouchDevice()) endScreen.addEventListener('click', tapRestart);
         }, 1000);
     }
 };

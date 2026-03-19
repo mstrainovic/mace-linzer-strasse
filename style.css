@@ -696,3 +696,109 @@ body.shaking {
     .haggle-bar, .money-field { width: 300px; }
     .newspaper-body { column-count: 1; }
 }
+
+/* ===== TOUCH CONTROLS ===== */
+#touch-controls {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    padding: 12px 24px 28px;
+    justify-content: space-between;
+    align-items: flex-end;
+    pointer-events: none;
+}
+
+.touch-dpad {
+    display: flex;
+    gap: 12px;
+    pointer-events: all;
+}
+
+.touch-actions {
+    pointer-events: all;
+}
+
+.touch-btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.55);
+    border: 2px solid rgba(255, 51, 102, 0.7);
+    color: #fff;
+    font-size: 1.5em;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.08s, transform 0.08s;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.touch-btn:active, .touch-btn.pressed {
+    background: rgba(255, 51, 102, 0.45);
+    transform: scale(0.88);
+}
+
+.touch-interact {
+    border-color: rgba(255, 204, 0, 0.75);
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1.15em;
+    width: 72px;
+    height: 72px;
+}
+
+.touch-interact:active, .touch-interact.pressed {
+    background: rgba(255, 204, 0, 0.25);
+    transform: scale(0.88);
+}
+
+.touch-label {
+    font-size: 0.42em;
+    display: block;
+    color: #aaa;
+    margin-top: 1px;
+    letter-spacing: 0;
+}
+
+#touch-haggle-btn {
+    display: none;
+    margin-top: 22px;
+    padding: 18px 52px;
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid #ffcc00;
+    color: #ffcc00;
+    font-size: 1.4em;
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    border-radius: 4px;
+    cursor: pointer;
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    letter-spacing: 0.12em;
+    transition: background 0.08s, transform 0.08s;
+}
+
+#touch-haggle-btn:active {
+    background: rgba(255, 204, 0, 0.22);
+    transform: scale(0.94);
+}
+
+.qte-key {
+    touch-action: manipulation;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.hud-inventory.touch-shifted {
+    bottom: 120px;
+}
