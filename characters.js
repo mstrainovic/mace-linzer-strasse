@@ -841,7 +841,12 @@ const NPCs = {
                         requiresMoney: 3
                     },
                     {
-                        text: 'D) "Kein Interesse, \'Sultan\'."',
+                        text: 'D) "Kannst du mir eine Zigarette geben?"',
+                        effect: {},
+                        next: 'response_schnorr'
+                    },
+                    {
+                        text: 'E) "Kein Interesse, \'Sultan\'."',
                         effect: {},
                         next: null
                     }
@@ -852,6 +857,19 @@ const NPCs = {
                 choices: [
                     { text: 'A) "Sanski Most hat keinen Sultan."', effect: { charm: 1 }, next: 'response_sanski' },
                     { text: 'B) "Okay, Eure Majestät..."', effect: { desperation: 1 }, next: 'response_majestaet' }
+                ]
+            },
+            response_schnorr: {
+                text: function() { return '"*schaut ihn misstrauisch an* Eine Zigarette? *zieht tief an seiner Marlboro* ...nur eine?"'; },
+                choices: [
+                    { text: 'A) "Eigentlich... die ganze Schachtel wäre besser."', effect: {}, next: 'gift_cigarettes' },
+                    { text: 'B) "Ja, nur eine reicht."', effect: { charm: -1 }, next: 'response_schnorr_nein' }
+                ]
+            },
+            response_schnorr_nein: {
+                text: function() { return '"*schüttelt den Kopf* Eine Zigarette ist keine Großzügigkeit, das ist ein Almosen. Der Sultan gibt keine Almosen. Er gibt ALLES oder nix. *dreht sich weg*"'; },
+                choices: [
+                    { text: '[Weiter gehen]', effect: {}, next: null }
                 ]
             },
             response_filme: {

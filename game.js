@@ -664,7 +664,6 @@ const Game = {
                 // Handle callback
                 if (choice.callback) {
                     choice.callback();
-                    return;
                 }
 
                 // Navigate to next dialog
