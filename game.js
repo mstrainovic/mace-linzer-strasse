@@ -103,6 +103,7 @@ const Game = {
         document.addEventListener('click', introScreenFn);
 
         this._bindTouchControls();
+        this._bindSlotButtons();
     },
 
     // ===== TOUCH HELPERS =====
@@ -180,6 +181,19 @@ const Game = {
         if (endRestart) endRestart.textContent = 'Tippe für Neustart';
     },
 
+    _bindSlotButtons() {
+        const spinBtn = document.getElementById('slot-spin-btn');
+        const exitBtn = document.getElementById('slot-exit-btn');
+
+        const spinFn = (e) => { e.preventDefault(); e.stopPropagation(); this.slotSpin(); };
+        spinBtn.addEventListener('touchstart', spinFn, { passive: false });
+        spinBtn.addEventListener('click', spinFn);
+
+        const exitFn = (e) => { e.preventDefault(); e.stopPropagation(); this.closeSlotMachine(); };
+        exitBtn.addEventListener('touchstart', exitFn, { passive: false });
+        exitBtn.addEventListener('click', exitFn);
+    },
+
     handleKeyPress(key, e) {
         // Ignore key repeats for state transitions
         if (e && e.repeat) return;
@@ -209,7 +223,14 @@ const Game = {
                 }
                 break;
             case 'minigame':
-                if (key === ' ') {
+                if (this.slotData && this.slotData.active) {
+                    if (key === ' ' || key === 'Enter') {
+                        e.preventDefault();
+                        this.slotSpin();
+                    } else if (key === 'Escape' || key === 'q') {
+                        this.closeSlotMachine();
+                    }
+                } else if (key === ' ') {
                     e.preventDefault();
                     this.hagglePress();
                 }
@@ -469,6 +490,12 @@ const Game = {
 
     // ===== INTERACTION =====
     tryInteract() {
+        // Check slot machine first
+        if (Math.abs(this.player.x - Renderer.slotMachineX) < 60) {
+            this.startSlotMachine();
+            return;
+        }
+
         for (const [key, npc] of Object.entries(NPCs)) {
             if (isNearNPC(this.player.x, npc)) {
                 this.startNPCDialog(key);
@@ -1057,6 +1084,165 @@ const Game = {
         };
     },
 
+    // ===== SLOT MACHINE (Book of Ra) =====
+    slotData: null,
+
+    startSlotMachine() {
+        if (PlayerStats.money < 5) {
+            this.showFloatingText('Nicht genug Geld! (5€ pro Spin)');
+            return;
+        }
+
+        this.state = 'minigame';
+        this._showMovementControls(false);
+
+        const overlay = document.getElementById('slot-overlay');
+        overlay.classList.add('active');
+
+        this.slotData = {
+            reels: [0, 0, 0],
+            spinning: false,
+            results: [0, 0, 0],
+            stopTimes: [0, 0, 0],
+            startTime: 0,
+            bet: 5,
+            symbols: ['📖', '👑', '🪲', 'A', 'K', 'Q'],
+            symbolNames: ['Buch', 'Pharao', 'Skarabäus', 'A', 'K', 'Q'],
+            active: true
+        };
+
+        document.getElementById('slot-balance').textContent = PlayerStats.money + '€';
+        document.getElementById('slot-bet').textContent = this.slotData.bet + '€';
+        document.getElementById('slot-result').textContent = '';
+        this._updateSlotReels();
+    },
+
+    slotSpin() {
+        if (!this.slotData || !this.slotData.active) return;
+        if (this.slotData.spinning) return;
+
+        if (PlayerStats.money < this.slotData.bet) {
+            document.getElementById('slot-result').textContent = 'Nicht genug Geld!';
+            return;
+        }
+
+        PlayerStats.addMoney(-this.slotData.bet);
+        this.updateHUD();
+        document.getElementById('slot-balance').textContent = PlayerStats.money + '€';
+        document.getElementById('slot-result').textContent = '';
+
+        this.slotData.spinning = true;
+        this.slotData.startTime = Date.now();
+
+        // Each reel stops at different times
+        this.slotData.stopTimes = [
+            Date.now() + 800 + Math.random() * 200,
+            Date.now() + 1200 + Math.random() * 300,
+            Date.now() + 1600 + Math.random() * 400
+        ];
+
+        // Pre-determine results (weighted)
+        const syms = this.slotData.symbols;
+        // Weight: Q/K/A more common, Book/Pharaoh/Scarab rarer
+        const weights = [2, 3, 4, 8, 8, 8]; // book, pharaoh, scarab, A, K, Q
+        const pick = () => {
+            const total = weights.reduce((a, b) => a + b, 0);
+            let r = Math.random() * total;
+            for (let i = 0; i < weights.length; i++) {
+                r -= weights[i];
+                if (r <= 0) return i;
+            }
+            return weights.length - 1;
+        };
+        this.slotData.results = [pick(), pick(), pick()];
+
+        this._animateSlotReels();
+    },
+
+    _animateSlotReels() {
+        if (!this.slotData || !this.slotData.spinning) return;
+
+        const now = Date.now();
+        const d = this.slotData;
+        const reelEls = document.querySelectorAll('.slot-reel-symbol');
+        let allStopped = true;
+
+        for (let i = 0; i < 3; i++) {
+            if (now < d.stopTimes[i]) {
+                // Still spinning - show random symbols
+                const randIdx = Math.floor(Math.random() * d.symbols.length);
+                reelEls[i].textContent = d.symbols[randIdx];
+                reelEls[i].classList.add('spinning');
+                allStopped = false;
+            } else {
+                // Stopped - show result
+                reelEls[i].textContent = d.symbols[d.results[i]];
+                reelEls[i].classList.remove('spinning');
+            }
+        }
+
+        if (allStopped) {
+            d.spinning = false;
+            this._checkSlotResult();
+        } else {
+            requestAnimationFrame(() => this._animateSlotReels());
+        }
+    },
+
+    _checkSlotResult() {
+        const d = this.slotData;
+        const r = d.results;
+        let winAmount = 0;
+        let winText = '';
+
+        if (r[0] === r[1] && r[1] === r[2]) {
+            // Three of a kind
+            switch (r[0]) {
+                case 0: winAmount = 50; winText = '📖📖📖 BOOK OF RA! 50€!'; break;
+                case 1: winAmount = 25; winText = '👑👑👑 PHARAO! 25€!'; break;
+                case 2: winAmount = 15; winText = '🪲🪲🪲 SKARABÄUS! 15€!'; break;
+                default: winAmount = 10; winText = '3x gleich! 10€!'; break;
+            }
+        } else if (r[0] === 0 || r[1] === 0 || r[2] === 0) {
+            // At least one book = small consolation (2€)
+            if (Math.random() < 0.3) {
+                winAmount = 2;
+                winText = '📖 Buch-Bonus! 2€';
+            }
+        }
+
+        if (winAmount > 0) {
+            PlayerStats.addMoney(winAmount);
+            this.updateHUD();
+            document.getElementById('slot-balance').textContent = PlayerStats.money + '€';
+            document.getElementById('slot-result').textContent = winText;
+            document.getElementById('slot-result').style.color = '#ffd700';
+            if (winAmount >= 25) {
+                Renderer.shake();
+                this.showAchievement('Jackpot am Automaten!');
+            }
+        } else {
+            document.getElementById('slot-result').textContent = 'Leider nichts...';
+            document.getElementById('slot-result').style.color = '#ff6666';
+        }
+    },
+
+    _updateSlotReels() {
+        const syms = this.slotData.symbols;
+        const reelEls = document.querySelectorAll('.slot-reel-symbol');
+        reelEls.forEach((el, i) => {
+            el.textContent = syms[Math.floor(Math.random() * syms.length)];
+        });
+    },
+
+    closeSlotMachine() {
+        if (this.slotData && this.slotData.spinning) return; // Can't close while spinning
+        this.slotData = null;
+        document.getElementById('slot-overlay').classList.remove('active');
+        this.state = 'playing';
+        this._showMovementControls(true);
+    },
+
     // ===== FLOATING TEXT =====
     showFloatingText(text) {
         this.floatingTexts.push({
@@ -1107,6 +1293,7 @@ const Game = {
         document.getElementById('minigame-haggle').classList.remove('active');
         document.getElementById('qte-overlay').classList.remove('active');
         document.getElementById('phone-overlay').classList.remove('active');
+        document.getElementById('slot-overlay').classList.remove('active');
 
         const endings = {
             gentleman: {

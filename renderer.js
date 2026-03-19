@@ -14,9 +14,13 @@ const Renderer = {
     stars: [],
     buildings: [],
     graffiti: [
+        { x: 500, text: 'PHENO WAS HERE', color: '#00ff6688' },
         { x: 800, text: 'Mace war hier', color: '#ff336688' },
+        { x: 1600, text: 'Pheno was here ★', color: '#ff990088' },
         { x: 2000, text: 'YOLO', color: '#ffcc0088' },
+        { x: 2900, text: 'PHENO WAS HERE', color: '#66ccff88' },
         { x: 3200, text: '♥ Wien ♥', color: '#ff69b488' },
+        { x: 4000, text: 'pheno was here', color: '#ff66ff88' },
         { x: 1400, text: 'Vermisst: Maces Würde', color: '#ff000088' },
         { x: 3800, text: 'Hilfe', color: '#ffffff44' }
     ],
@@ -107,6 +111,7 @@ const Renderer = {
             ['drawGraffiti', () => this.drawGraffiti()],
             ['drawStreet', () => this.drawStreet()],
             ['drawLampposts', () => this.drawLampposts()],
+            ['drawSlotMachine', () => this.drawSlotMachine()],
             ['drawNPCs', () => this.drawNPCs(npcs)],
             ['drawPlayer', () => this.drawPlayer(player)],
             ['drawPigeon', () => this.drawPigeon(player)],
@@ -270,6 +275,84 @@ const Renderer = {
                 ctx.fill();
             }
         }
+    },
+
+    slotMachineX: NPC_POSITIONS.vedro_slot,
+
+    drawSlotMachine() {
+        const { ctx } = this;
+        const sx = this.slotMachineX - this.cameraX;
+        if (sx < -100 || sx > this.width + 100) return;
+
+        const gy = this.groundY;
+
+        // Machine body
+        ctx.fillStyle = '#4a0e0e';
+        ctx.fillRect(sx - 25, gy - 90, 50, 90);
+
+        // Gold trim
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(sx - 25, gy - 90, 50, 90);
+
+        // Screen area (dark)
+        ctx.fillStyle = '#0a0a2a';
+        ctx.fillRect(sx - 20, gy - 80, 40, 35);
+
+        // Screen border gold
+        ctx.strokeStyle = '#b8860b';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(sx - 20, gy - 80, 40, 35);
+
+        // Mini reels display (3 slots)
+        const symbols = ['📖', '👑', '🪲'];
+        const reelTime = Date.now() * 0.003;
+        ctx.font = '10px serif';
+        ctx.textAlign = 'center';
+        for (let i = 0; i < 3; i++) {
+            const symIdx = Math.floor(reelTime + i * 1.7) % symbols.length;
+            ctx.fillStyle = '#ffd700';
+            ctx.fillText(symbols[symIdx], sx - 10 + i * 10, gy - 58);
+        }
+
+        // "BOOK OF RA" title
+        ctx.fillStyle = '#ffd700';
+        ctx.font = 'bold 6px Courier New';
+        ctx.fillText('BOOK OF RA', sx, gy - 83);
+
+        // Coin slot
+        ctx.fillStyle = '#333';
+        ctx.fillRect(sx - 5, gy - 38, 10, 3);
+
+        // Lever
+        ctx.fillStyle = '#888';
+        ctx.fillRect(sx + 25, gy - 65, 4, 25);
+        ctx.fillStyle = '#e74c3c';
+        ctx.beginPath();
+        ctx.arc(sx + 27, gy - 67, 5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Flashing lights
+        const flashTime = Date.now() * 0.005;
+        for (let i = 0; i < 5; i++) {
+            const on = Math.sin(flashTime + i * 1.2) > 0;
+            ctx.fillStyle = on ? '#ff0' : '#660';
+            ctx.beginPath();
+            ctx.arc(sx - 18 + i * 9, gy - 87, 2, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // Glow effect
+        const intensity = 1 - this.time * 0.8;
+        if (intensity > 0) {
+            ctx.shadowColor = '#ffd700';
+            ctx.shadowBlur = 8 * intensity;
+            ctx.fillStyle = `rgba(255, 215, 0, ${0.05 * intensity})`;
+            ctx.fillRect(sx - 30, gy - 95, 60, 100);
+            ctx.shadowBlur = 0;
+        }
+
+        ctx.textAlign = 'left';
     },
 
     drawPlayer(player) {
@@ -469,7 +552,7 @@ const Renderer = {
             this['drawNPC_' + key]?.(ctx, bob, npc);
 
             // Name label
-            if (!npc.interacted || key === 'oma') {
+            if (!npc.interacted || key === 'oma' || key === 'vedro' || key === 'pajo') {
                 ctx.fillStyle = 'rgba(0,0,0,0.6)';
                 const nameWidth = ctx.measureText(npc.name).width;
                 ctx.font = '11px Courier New';
@@ -871,6 +954,178 @@ const Renderer = {
         ctx.fill();
     },
 
+    drawNPC_vedro(ctx, bob) {
+        // Fat guy with empty leash, tracksuit
+        // Big round body - tracksuit (dark blue Adidas-style)
+        ctx.fillStyle = '#1a237e';
+        ctx.beginPath();
+        ctx.ellipse(0, -35 + bob, 18, 22, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // White stripes on tracksuit
+        ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(-14, -50 + bob);
+        ctx.lineTo(-10, -15 + bob);
+        ctx.moveTo(14, -50 + bob);
+        ctx.lineTo(10, -15 + bob);
+        ctx.stroke();
+
+        // Head
+        ctx.fillStyle = '#daa06d';
+        ctx.beginPath();
+        ctx.arc(0, -62 + bob, 13, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Short buzz cut
+        ctx.fillStyle = '#3e2723';
+        ctx.beginPath();
+        ctx.arc(0, -66 + bob, 13, Math.PI, 0.05);
+        ctx.fill();
+
+        // Eyes
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(-4, -62 + bob, 2, 0, Math.PI * 2);
+        ctx.arc(4, -62 + bob, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Friendly grin
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(0, -58 + bob, 6, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+
+        // Double chin
+        ctx.fillStyle = '#c9956b';
+        ctx.beginPath();
+        ctx.ellipse(0, -50 + bob, 8, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Legs (thick)
+        ctx.fillStyle = '#1a237e';
+        ctx.fillRect(-9, -14 + bob, 8, 14);
+        ctx.fillRect(1, -14 + bob, 8, 14);
+
+        // Sneakers
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(-10, -2 + bob, 10, 4);
+        ctx.fillRect(0, -2 + bob, 10, 4);
+
+        // Right arm holding leash
+        ctx.fillStyle = '#daa06d';
+        ctx.fillRect(16, -45 + bob, 6, 16);
+
+        // Leash (dangling from hand into nothing)
+        const leashSwing = Math.sin(Date.now() * 0.003) * 3;
+        ctx.strokeStyle = '#8d6e63';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(19, -30 + bob);
+        ctx.quadraticCurveTo(25 + leashSwing, -15 + bob, 35 + leashSwing, -5 + bob);
+        ctx.stroke();
+
+        // Small loop at end of leash (empty collar)
+        ctx.beginPath();
+        ctx.arc(35 + leashSwing, -5 + bob, 4, 0, Math.PI * 2);
+        ctx.stroke();
+    },
+
+    drawNPC_pajo(ctx, bob) {
+        // Slim guy, gold chain, cigarette, VHS tapes
+        // Body - leather jacket
+        ctx.fillStyle = '#2c2c2c';
+        ctx.fillRect(-9, -52 + bob, 18, 32);
+
+        // Head
+        ctx.fillStyle = '#c68642';
+        ctx.beginPath();
+        ctx.arc(0, -62 + bob, 11, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Slicked back hair
+        ctx.fillStyle = '#1a1a1a';
+        ctx.beginPath();
+        ctx.arc(0, -66 + bob, 12, Math.PI + 0.3, -0.3);
+        ctx.fill();
+
+        // Eyes
+        ctx.fillStyle = '#000';
+        ctx.beginPath();
+        ctx.arc(-4, -63 + bob, 1.5, 0, Math.PI * 2);
+        ctx.arc(4, -63 + bob, 1.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Confident smirk
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(2, -58 + bob, 4, 0.1, Math.PI - 0.4);
+        ctx.stroke();
+
+        // Gold chain
+        ctx.strokeStyle = '#ffd700';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(0, -48 + bob, 8, 0.3, Math.PI - 0.3);
+        ctx.stroke();
+
+        // Cigarette in mouth (with glow)
+        ctx.fillStyle = '#f5f5dc';
+        ctx.fillRect(6, -59 + bob, 14, 2);
+        // Cigarette filter
+        ctx.fillStyle = '#d4a056';
+        ctx.fillRect(6, -59 + bob, 4, 2);
+        // Glowing tip
+        const glowPulse = Math.sin(Date.now() * 0.004) * 0.3 + 0.7;
+        ctx.fillStyle = `rgba(255, 100, 0, ${glowPulse})`;
+        ctx.beginPath();
+        ctx.arc(20, -58 + bob, 2, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Smoke particles
+        const smokeTime = Date.now() * 0.002;
+        for (let i = 0; i < 3; i++) {
+            const sx = 20 + Math.sin(smokeTime + i * 2) * 4;
+            const sy = -65 - i * 8 + Math.sin(smokeTime * 0.5 + i) * 2 + bob;
+            const salpha = Math.max(0, 0.4 - i * 0.12);
+            ctx.fillStyle = `rgba(200, 200, 200, ${salpha})`;
+            ctx.beginPath();
+            ctx.arc(sx, sy, 3 + i, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        // VHS tapes under left arm
+        ctx.fillStyle = '#111';
+        ctx.fillRect(-20, -42 + bob, 10, 16);
+        ctx.fillStyle = '#222';
+        ctx.fillRect(-19, -39 + bob, 8, 3);
+        ctx.fillRect(-19, -34 + bob, 8, 3);
+        // VHS label
+        ctx.fillStyle = '#e74c3c';
+        ctx.fillRect(-18, -40 + bob, 6, 1.5);
+        ctx.fillStyle = '#3498db';
+        ctx.fillRect(-18, -35 + bob, 6, 1.5);
+
+        // Legs (slim)
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillRect(-6, -20 + bob, 5, 20);
+        ctx.fillRect(1, -20 + bob, 5, 20);
+
+        // Pointy shoes
+        ctx.fillStyle = '#333';
+        ctx.fillRect(-8, -2 + bob, 9, 3);
+        ctx.fillRect(0, -2 + bob, 9, 3);
+
+        // Marlboro Light box peeking from jacket pocket
+        ctx.fillStyle = '#c0c0c0';
+        ctx.fillRect(5, -50 + bob, 6, 8);
+        ctx.fillStyle = '#c0392b';
+        ctx.fillRect(5, -50 + bob, 6, 3);
+    },
+
     drawPigeon(player) {
         if (!this.pigeon.active) return;
         const { ctx } = this;
@@ -958,6 +1213,22 @@ const Renderer = {
 
     drawInteractionPrompt(player, npcs) {
         const { ctx } = this;
+
+        // Slot machine prompt
+        if (Math.abs(player.x - this.slotMachineX) < 60) {
+            const smx = this.slotMachineX - this.cameraX;
+            ctx.save();
+            ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
+            ctx.font = 'bold 14px Courier New';
+            ctx.textAlign = 'center';
+            const pulseAlpha = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
+            ctx.globalAlpha = pulseAlpha;
+            ctx.fillText('[E] Book of Ra', smx, this.groundY - 100);
+            ctx.globalAlpha = 1;
+            ctx.textAlign = 'left';
+            ctx.restore();
+        }
+
         Object.entries(npcs).forEach(([key, npc]) => {
             if (isNearNPC(player.x, npc)) {
                 const nx = npc.x - this.cameraX;

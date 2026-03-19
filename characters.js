@@ -37,11 +37,14 @@ const PlayerStats = {
 // NPC positions along the street (world X coordinates)
 const NPC_POSITIONS = {
     svetlana: 600,
+    vedro: 900,
     brenda: 1200,
+    vedro_slot: 1500,
     klaus: 1800,
     twins: 2400,
     lehel: 2700,
     oma: 3000,
+    pajo: 3300,
     ines: 3600,
     erscheinung: 4200
 };
@@ -674,6 +677,246 @@ const NPCs = {
                 text: function() { return '*spricht in Aermel* "Einsatz abbrechen, der Verdaechtige ist... zu schlau." *geht genervt weg*'; },
                 choices: [
                     { text: '*Fuehlt sich wie ein Genie*', effect: { charm: 2, selfRespect: 3 }, next: null }
+                ]
+            }
+        }
+    },
+
+    vedro: {
+        name: 'Vedro',
+        price: null,
+        x: NPC_POSITIONS.vedro,
+        color: '#e67e22',
+        width: 36,
+        height: 60,
+        interacted: false,
+        haggleSuccess: false,
+        description: 'Dicker Typ mit Leine aber ohne Hund',
+        sprite: 'vedro',
+        dialog: {
+            greeting: {
+                text: function() { return PlayerStats.konamiActive
+                    ? '"Mace! Bruder! Rex hat gerade einen Backflip gemacht! Hast du es gesehen?! ...nein? Egal."'
+                    : '"Yo Mace! Komm nicht zu nah, Rex ist heute aggressiv! *zerrt an leerer Leine* RUHIG, REX! Siehst du wie er knurrt?"'; },
+                choices: [
+                    {
+                        text: 'A) "Vedro... wo ist der Hund?"',
+                        effect: { charm: 1 },
+                        next: 'response_where'
+                    },
+                    {
+                        text: 'B) "Ja, ja, ich sehe ihn! Großer Hund!"',
+                        effect: { desperation: 1 },
+                        next: 'response_play_along'
+                    },
+                    {
+                        text: 'C) "Du hältst eine leere Leine."',
+                        effect: { selfRespect: 1 },
+                        next: 'response_empty'
+                    }
+                ]
+            },
+            response_where: {
+                text: function() { return '"Was meinst du \'wo\'? Er steht direkt— *schaut hin* *lange Pause* ...okay. Mein Tata ist vorhin mit ihm Gassi gegangen. Aber ich hab die Leine noch! Das zählt!"'; },
+                choices: [
+                    { text: 'A) "Dein Vater geht um 2 Uhr nachts Gassi?"', effect: { charm: 1 }, next: 'response_tata' },
+                    { text: 'B) "Warum hast du dann noch die Leine?"', effect: {}, next: 'response_leine' }
+                ]
+            },
+            response_play_along: {
+                text: function() { return '"SIEHST DU?! Endlich jemand mit Augen! *streichelt Luft* Braver Rex! Wer ist ein guter Junge? *Stille* Er... er ist heute schüchtern."'; },
+                choices: [
+                    { text: 'A) "Er ist wirklich... beeindruckend."', effect: { desperation: 1, charm: 1 }, next: 'response_impressive' },
+                    { text: 'B) "Vedro. Da ist kein Hund."', effect: { selfRespect: 1 }, next: 'response_empty' }
+                ]
+            },
+            response_empty: {
+                text: function() { return '"*schaut auf leere Leine* *schaut auf Mace* *schaut wieder auf Leine* ...Brate, mein Tata hat ihn genommen. Rex IST real. Er wiegt 40 Kilo! Ich habe Fotos! *zeigt Foto von 2019*"'; },
+                choices: [
+                    { text: 'A) "Das Foto ist 7 Jahre alt."', effect: { charm: 1 }, next: 'response_foto' },
+                    { text: 'B) "Schon gut, ich glaube dir."', effect: {}, next: 'response_believe' }
+                ]
+            },
+            response_tata: {
+                text: function() { return '"Mein Tata schläft nie, Bruder. Der Mann ist Maschine. Steht auf, nimmt Rex, geht drei Stunden durch Ottakring. Jeden Tag. Seit 2018. Ich... ich schlafe lieber."'; },
+                choices: [
+                    { text: 'A) "Also gehst du nie selbst Gassi?"', effect: { charm: 1 }, next: 'response_never' },
+                    { text: 'B) "Respekt an deinen Tata."', effect: { charm: 1 }, next: 'response_respect' }
+                ]
+            },
+            response_leine: {
+                text: function() { return '"Die Leine gibt mir... Autorität. Wenn ich mit Leine gehe, denken die Leute: \'Der hat einen Hund!\' Und dann respektieren sie mich. Außerdem war sie teuer. 35 Euro bei Fressnapf."'; },
+                choices: [
+                    { text: 'A) "Das ist... traurig und genial gleichzeitig."', effect: { charm: 2 }, next: 'response_genius' },
+                    { text: 'B) "Du brauchst dringend ein Hobby."', effect: {}, next: null }
+                ]
+            },
+            response_impressive: {
+                text: function() { return '"Er kann auch Tricks! Rex – SITZ! *Stille* ...siehst du? Perfekt. Er ist so gut trainiert, man sieht es nicht mal. Das ist Elite-Level, Bruder."'; },
+                choices: [
+                    { text: 'A) "Elite-Level unsichtbarer Hund."', effect: { charm: 1 }, next: 'response_genius' }
+                ]
+            },
+            response_foto: {
+                text: function() { return '"Er sieht GENAU gleich aus! Hunde altern nicht so wie Menschen, Brate. Das ist wissenschaftlich. Glaube ich. *wischt durch leeres Handy-Album*"'; },
+                choices: [
+                    { text: 'A) "Vedro... alles okay bei dir?"', effect: { charm: 2 }, next: 'response_okay' }
+                ]
+            },
+            response_believe: {
+                text: function() { return '"Danke, Bruder! *umarmt Mace* Rex mag dich auch. Er wedelt gerade mit dem Schwanz! ...vertrau mir."'; },
+                choices: [
+                    { text: '*wird umarmt und fühlt sich komisch*', effect: { charm: 1, embarrassment: 1 }, next: null }
+                ]
+            },
+            response_never: {
+                text: function() { return '"Einmal. 2019. Rex hat einen Chihuahua gejagt und ich bin in einen Mistkübel gefallen. Seitdem ist Tata zuständig. Arbeitsteilung, Bruder."'; },
+                choices: [
+                    { text: 'A) "Classic Vedro."', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_respect: {
+                text: function() { return '"Ich sags ihm! Er wird sich freuen. Er sagt immer: \'Vedro, du bist nutzlos.\' Aber er meint es liebevoll. Glaube ich."'; },
+                choices: [
+                    { text: '*klopft Vedro auf die Schulter*', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_genius: {
+                text: function() { return '"GENAU! Endlich versteht mich jemand! Mace, du bist ein wahrer Freund. Nicht wie diese Hater die sagen \'Vedro, wo ist dein Hund\'. DU verstehst den Vibe."'; },
+                choices: [
+                    { text: '"Immer, Bruder."', effect: { charm: 2 }, next: null }
+                ]
+            },
+            response_okay: {
+                text: function() { return '"*seufzt* Weißt du... manchmal vermisse ich Rex wenn Tata mit ihm geht. Dann nehme ich die Leine und... naja. *zuckt Schultern* Ist das weird?"'; },
+                choices: [
+                    { text: 'A) "Nein. Das ist... auf seine Art süß."', effect: { charm: 2, selfRespect: -1 }, next: null },
+                    { text: 'B) "Ja. Sehr."', effect: { selfRespect: 1 }, next: null }
+                ]
+            }
+        }
+    },
+
+    pajo: {
+        name: 'Pajo der Sultan',
+        price: null,
+        x: NPC_POSITIONS.pajo,
+        color: '#f39c12',
+        width: 26,
+        height: 62,
+        interacted: false,
+        haggleSuccess: false,
+        description: 'Rauchender Typ mit VHS-Kassetten und goldenem Schmuck',
+        sprite: 'pajo',
+        dialog: {
+            greeting: {
+                text: function() { return PlayerStats.konamiActive
+                    ? '"*wirft Zigarette weg, zündet sofort neue an* Mace! Der Sultan empfängt dich in seinem Palast! *zeigt auf Bushaltestelle*"'
+                    : '"*zieht an Marlboro Light* Mace, Bruder! Der Sultan grüßt! *hustet* Hast du zufällig 3 Euro für die Videothek-Mahngebühr?"'; },
+                choices: [
+                    {
+                        text: 'A) "Sultan? Du bist Pajo aus dem 15. Bezirk."',
+                        effect: { charm: 1 },
+                        next: 'response_sultan'
+                    },
+                    {
+                        text: 'B) "Welche Filme hast du diesmal nicht zurückgegeben?"',
+                        effect: {},
+                        next: 'response_filme'
+                    },
+                    {
+                        text: 'C) "Hier, 3 Euro." (3€)',
+                        effect: { charm: 2 },
+                        next: 'response_pay',
+                        requiresMoney: 3
+                    },
+                    {
+                        text: 'D) "Kein Interesse, \'Sultan\'."',
+                        effect: {},
+                        next: null
+                    }
+                ]
+            },
+            response_sultan: {
+                text: function() { return '"*bläst Rauch aus* Ignoranz! Meine Oma hat gesagt, wir sind von königlichem Blut! Aus einem Dorf mit 200 Einwohnern in Bosnien. Aber KÖNIGLICH, verstehst du? Der Sultan von Sanski Most!"'; },
+                choices: [
+                    { text: 'A) "Sanski Most hat keinen Sultan."', effect: { charm: 1 }, next: 'response_sanski' },
+                    { text: 'B) "Okay, Eure Majestät..."', effect: { desperation: 1 }, next: 'response_majestaet' }
+                ]
+            },
+            response_filme: {
+                text: function() { return '"*zählt VHS-Kassetten* Also: Rocky IV, Rambo III, Terminator 2, und... *flüstert* ...Dirty Dancing. DAS IST FÜR MEINE SCHWESTER! *zündet nervös neue Marlboro an*"'; },
+                choices: [
+                    { text: 'A) "Dirty Dancing, ja?"', effect: { charm: 2 }, next: 'response_dirty' },
+                    { text: 'B) "Die Videothek gibt es seit 2015 nicht mehr."', effect: { selfRespect: 1 }, next: 'response_videothek' }
+                ]
+            },
+            response_pay: {
+                text: function() {
+                    PlayerStats.addMoney(-3);
+                    return '"*Augen leuchten* BRUDER! Der Sultan vergisst das nicht! Du bist ab jetzt Ehrenbürger von... *überlegt* ...meinem Wohnzimmer. Komm mal vorbei, wir schauen Rocky!"';
+                },
+                choices: [
+                    { text: 'A) "Gerne, Pajo."', effect: { charm: 1 }, next: 'response_rocky' },
+                    { text: 'B) "Gibst du die Filme jetzt zurück?"', effect: {}, next: 'response_return' }
+                ]
+            },
+            response_sanski: {
+                text: function() { return '"NOCH nicht! Aber wenn ich erstmal mein Imperium aufgebaut habe... *zieht an Zigarette* ...eine Videothek-Kette. \'Sultan Video\'. Nur Actionfilme. Und Dirty Dancing. Für meine Schwester."'; },
+                choices: [
+                    { text: 'A) "Eine Videothek-Kette. Im Jahr 2026."', effect: { charm: 1 }, next: 'response_business' },
+                    { text: 'B) "Ich wünsche dir viel Erfolg."', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_majestaet: {
+                text: function() { return '"HA! Endlich Respekt! *richtet imaginäre Krone* Als Sultan verfüge ich: Mahngebühren sind ab sofort ABGESCHAFFT. *Marlboro fällt runter* Scheiße. Das war meine vorletzte."'; },
+                choices: [
+                    { text: '"Majestätisch."', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_dirty: {
+                text: function() { return '"*wird rot* ICH HAB GESAGT FÜR MEINE SCHWESTER! *Pause* ...okay. Der Film ist gut. Patrick Swayze war ein Ehrenmann. Wie ich. Nur dass ich nicht tanzen kann. Und rauche."'; },
+                choices: [
+                    { text: 'A) "Nobody puts Pajo in a corner."', effect: { charm: 2 }, next: 'response_nobody' },
+                    { text: 'B) "Dein Geheimnis ist sicher."', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_videothek: {
+                text: function() { return '"*lange Stille* *zieht an Zigarette* ...was? *schaut auf VHS-Kassetten* NEIN. Die macht nur Pause! Der Besitzer – Herr Kovac – hat gesagt \'vorübergehend geschlossen\'! Seit 11 Jahren! Das ist vorübergehend!"'; },
+                choices: [
+                    { text: 'A) "Pajo, die ist weg. Für immer."', effect: { selfRespect: 1 }, next: 'response_gone' },
+                    { text: 'B) "Klar, vorübergehend..."', effect: {}, next: null }
+                ]
+            },
+            response_nobody: {
+                text: function() { return '"*Träne im Auge* Das... das ist das Schönste was je jemand zu mir gesagt hat. Bruder. *umarmt Mace mit Zigarette in der Hand* Vorsicht, Glut! GLUT!"'; },
+                choices: [
+                    { text: '*Hemd hat jetzt ein Brandloch*', effect: { charm: 1, embarrassment: 1 }, next: null }
+                ]
+            },
+            response_business: {
+                text: function() { return '"Streaming ist nur ein Trend, Brate! Die Leute wollen ANFASSEN! VHS hat Seele! *küsst Rambo-Kassette* Außerdem habe ich 340 VHS zuhause. Das ist Startkapital!"'; },
+                choices: [
+                    { text: '"Visionär."', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_gone: {
+                text: function() { return '"*Zigarette fällt aus dem Mund* ...aber... meine Mitgliedskarte... *zieht zerknitterte Karte aus der Tasche* GOLD-MITGLIED seit 2012! Das muss doch was wert sein?!"'; },
+                choices: [
+                    { text: 'A) "Ich bin sicher, es ist sehr wertvoll."', effect: { charm: 2, desperation: 1 }, next: null },
+                    { text: 'B) "Es tut mir leid, Pajo."', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_rocky: {
+                text: function() { return '"Echt?! Ich mache Popcorn! Also... Mikrowellen-Popcorn. Und es ist von 2023. Aber das Ablaufdatum ist nur ein Vorschlag! *zündet neue Marlboro an*"'; },
+                choices: [
+                    { text: '"Klingt perfekt."', effect: { charm: 1 }, next: null }
+                ]
+            },
+            response_return: {
+                text: function() { return '"*nervöses Lachen* Zurückgeben? Ja! Natürlich! Morgen! Oder übermorgen. Oder... *zählt an Fingern* ...bald. Der Sultan hat viel zu tun. Regierungsgeschäfte."'; },
+                choices: [
+                    { text: '"Natürlich."', effect: {}, next: null }
                 ]
             }
         }
