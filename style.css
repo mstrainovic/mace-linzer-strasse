@@ -729,6 +729,20 @@ body.shaking {
 
 .touch-actions {
     pointer-events: all;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.touch-jump {
+    border-color: rgba(100, 200, 255, 0.75);
+    font-size: 1.4em;
+}
+
+.touch-jump:active, .touch-jump.pressed {
+    background: rgba(100, 200, 255, 0.25);
+    transform: scale(0.88);
 }
 
 .touch-btn {
