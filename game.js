@@ -10,6 +10,10 @@ const Game = {
     player: {
         x: 300,
         y: 0,
+        velocityY: 0,
+        isGrounded: true,
+        jumpPower: 12,
+        gravity: 0.6,
         speed: 3,
         facing: 1,
         isWalking: false,
@@ -126,6 +130,7 @@ const Game = {
 
         const leftBtn = document.getElementById('touch-left');
         const rightBtn = document.getElementById('touch-right');
+        const jumpBtn = document.getElementById('touch-jump');
         const interactBtn = document.getElementById('touch-interact');
         const haggleBtn = document.getElementById('touch-haggle-btn');
 
@@ -142,6 +147,19 @@ const Game = {
         };
         addHoldBtn(leftBtn, 'ArrowLeft');
         addHoldBtn(rightBtn, 'ArrowRight');
+
+        // Jump button: tap to jump
+        const jumpFn = (e) => {
+            e.preventDefault();
+            if (this.player.isGrounded) {
+                this.player.velocityY = this.player.jumpPower;
+                this.player.isGrounded = false;
+                jumpBtn.classList.add('pressed');
+                setTimeout(() => jumpBtn.classList.remove('pressed'), 150);
+            }
+        };
+        jumpBtn.addEventListener('touchstart', jumpFn, { passive: false });
+        jumpBtn.addEventListener('click', jumpFn);
 
         // Interact button: tap to interact
         const interactFn = (e) => { e.preventDefault(); this.tryInteract(); };
@@ -372,6 +390,23 @@ const Game = {
 
         // Bounds
         this.player.x = Math.max(50, Math.min(Renderer.worldWidth - 50, this.player.x));
+
+        // Jump
+        if ((this.keys[' '] || this.keys['ArrowUp'] || this.keys['w']) && this.player.isGrounded) {
+            this.player.velocityY = this.player.jumpPower;
+            this.player.isGrounded = false;
+        }
+
+        // Gravity
+        if (!this.player.isGrounded) {
+            this.player.y += this.player.velocityY;
+            this.player.velocityY -= this.player.gravity;
+            if (this.player.y <= 0) {
+                this.player.y = 0;
+                this.player.velocityY = 0;
+                this.player.isGrounded = true;
+            }
+        }
 
         this.player.isWalking = moving;
         if (moving) {

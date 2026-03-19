@@ -275,24 +275,26 @@ const Renderer = {
     drawPlayer(player) {
         const { ctx } = this;
         const px = player.x - this.cameraX;
-        const py = this.groundY;
+        const jumpHeight = player.y || 0;
+        const py = this.groundY - jumpHeight;
         const facing = player.facing;
         const walkFrame = player.walkFrame;
         const isWalking = player.isWalking;
         const isIdle = player.idleTime > 3;
         const konami = PlayerStats.konamiActive;
 
+        // Shadow stays on ground, shrinks when airborne
+        const shadowScale = Math.max(0.3, 1 - jumpHeight / 150);
+        ctx.fillStyle = `rgba(0,0,0,${0.3 * shadowScale})`;
+        ctx.beginPath();
+        ctx.ellipse(px, this.groundY - 2, 18 * shadowScale, 5 * shadowScale, 0, 0, Math.PI * 2);
+        ctx.fill();
+
         ctx.save();
         ctx.translate(px, py);
         if (facing === -1) {
             ctx.scale(-1, 1);
         }
-
-        // Shadow
-        ctx.fillStyle = 'rgba(0,0,0,0.3)';
-        ctx.beginPath();
-        ctx.ellipse(0, -2, 18, 5, 0, 0, Math.PI * 2);
-        ctx.fill();
 
         // Swagger bob
         const bob = isWalking ? Math.sin(walkFrame * 0.3) * 3 : 0;
