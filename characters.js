@@ -292,7 +292,7 @@ const NPCs = {
 
     twins: {
         name: 'Die Zwillinge (Jasmin & Yasmin)',
-        price: 200,
+        price: 150,
         x: NPC_POSITIONS.twins,
         color: '#e91e63',
         width: 55,
@@ -320,9 +320,9 @@ const NPCs = {
                 ]
             },
             response_double: {
-                text: function() { return '*synchron* "Doppelt kostet auch doppelt." "2-fuer-1 Deal!" "Nur 200 Euro!" "Das ist ein Schnaeppchen!" "Pro Person waeren das 100!" "Also sparst du!"'; },
+                text: function() { return '*synchron* "Doppelt kostet auch doppelt." "2-fuer-1 Deal!" "Nur 150 Euro!" "Das ist ein Schnaeppchen!" "Pro Person waeren das 75!" "Also sparst du!"'; },
                 choices: [
-                    { text: 'A) "Moment... 2x100 ist immer noch 200..."', effect: { charm: 1 }, next: 'response_math' },
+                    { text: 'A) "Moment... 2x75 ist immer noch 150..."', effect: { charm: 1 }, next: 'response_math' },
                     { text: 'B) "Was fuer ein Deal!" (200 EUR)', effect: { selfRespect: -2 }, next: 'offer' }
                 ]
             },
@@ -334,9 +334,9 @@ const NPCs = {
                 ]
             },
             offer: {
-                text: function() { return '"200 Euro." "Zwei zum Preis von..." "...zwei." "Aber synchron!"'; },
+                text: function() { return '"150 Euro." "Zwei zum Preis von..." "...anderthalb." "Aber synchron!"'; },
                 choices: [
-                    { text: 'A) "Deal!" (200 EUR)', effect: {}, next: 'haggle', action: 'haggle' },
+                    { text: 'A) "Deal!" (150 EUR)', effect: {}, next: 'haggle', action: 'haggle' },
                     { text: 'B) Feilschen?', effect: { desperation: 1 }, next: 'haggle', action: 'haggle' },
                     { text: 'C) Nope', effect: {}, next: null }
                 ]

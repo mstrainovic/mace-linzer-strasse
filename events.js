@@ -128,7 +128,7 @@ const RandomEvents = {
                     gameRef.showAchievement('Smooth Criminal');
                     PlayerStats.modify('charm', 1);
                     PlayerStats.buffs.speedBoost = true;
-                    PlayerStats.buffs.speedBoostEndTime = Date.now() + 30000;
+                    PlayerStats.buffs.speedBoostEndTime = Date.now() + 15000;
                     gameRef.showFloatingText('⚡ Adrenalinstoß! Beine auf Turbo!');
                 } else {
                     PlayerStats.modify('embarrassment', 3);
@@ -187,7 +187,7 @@ const RandomEvents = {
     // Event 4: Stolpern - Geld aufsammeln Mini-Game
     event_stumble(gameRef) {
         Renderer.shake();
-        const lost = Math.min(PlayerStats.money, 20 + Math.floor(Math.random() * 20));
+        const lost = Math.min(PlayerStats.money, 30 + Math.floor(Math.random() * 30));
         PlayerStats.addMoney(-lost);
         gameRef.updateHUD();
 

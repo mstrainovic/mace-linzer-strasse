@@ -55,7 +55,7 @@ PlayerStats = {
 | Buff | Aktivierung | Effekt | Dauer |
 |------|-------------|--------|-------|
 | `slotMachineLuck` | Pajo-Dialog: ganze Zigarettenschachtel schnorren | 👑-Gewicht im Slot: 3→9 | Permanent |
-| `speedBoost` | Polizei-QTE erfolgreich bestanden | Laufgeschwindigkeit 3→6 | 30 Sekunden |
+| `speedBoost` | Polizei-QTE erfolgreich bestanden | Laufgeschwindigkeit 3→6 | 15 Sekunden |
 
 **Buff-HUD**: Zeigt aktive Buffs unten links (`🚬 Pajo's Glück`, `⚡ Speed (Xs)`).
 
@@ -95,7 +95,7 @@ PlayerStats = {
 | **Slot-Automat** | 1500 | 5€/Spin | Book of Ra Mini-Game |
 | Big Brenda | 1200 | 80€ | Reime, Haggle → end_adventurer |
 | Klaus/Klaudia | 1800 | 40€ | Trans-NPC, Döner-Route → end_true_love |
-| Zwillinge | 2400 | 200€ | Synchron, Mathe-Trick, Haggle → end_adventurer |
+| Zwillinge | 2400 | 150€ | Synchron, Mathe-Trick, Haggle → end_adventurer |
 | Lehel Bimre | 2700 | 100€ | Ungar. Banker, Euphemismen, Haggle → end_adventurer |
 | Oma Gertrude | 3000 | – | Lebensweisheit, Werther's Original → end_enlightened |
 | Pajo der Sultan | 3300 | – | Kettenraucher, VHS, Zigaretten-Buff |
@@ -146,7 +146,7 @@ greeting → A) Sultan-Aussage → response_sultan → B) "Eure Majestät" → r
 | K | 8 | 8 |
 | Q | 8 | 8 |
 
-**Gewinne**: 📖📖📖=50€, 👑👑👑=25€, 🪲🪲🪲=15€, 3x gleich=10€, 1x📖=30% Chance 2€
+**Gewinne**: 📖📖📖=100€, 👑👑👑=50€, 🪲🪲🪲=30€, 3x gleich=20€, 1x📖=30% Chance 2€
 
 ---
 
