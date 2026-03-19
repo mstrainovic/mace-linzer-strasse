@@ -76,6 +76,17 @@ const Game = {
         document.addEventListener('keyup', (e) => {
             this.keys[e.key] = false;
         });
+
+        // Screen tap handlers — always active (keyboard + touch + mouse)
+        document.getElementById('title-screen').addEventListener('click', () => {
+            if (this.state === 'title' && this.loadingPhase >= this.loadingMessages.length) {
+                this.startIntro();
+            }
+        });
+        document.getElementById('intro-screen').addEventListener('click', () => {
+            if (this.state === 'intro') this.startGame();
+        });
+
         this._bindTouchControls();
     },
 
@@ -131,19 +142,9 @@ const Game = {
         haggleBtn.addEventListener('touchstart', haggleFn, { passive: false });
         haggleBtn.addEventListener('click', haggleFn);
 
-        // Title screen: tap to start
-        document.getElementById('title-screen').addEventListener('click', () => {
-            if (this.state === 'title' && this.loadingPhase >= this.loadingMessages.length) {
-                this.startIntro();
-            }
-        });
-
-        // Intro screen: tap to skip
-        document.getElementById('intro-screen').addEventListener('click', () => {
-            if (this.state === 'intro') this.startGame();
-        });
-
         // Update hint texts for touch
+        const startPrompt = document.getElementById('start-prompt');
+        if (startPrompt) startPrompt.textContent = 'Tippe zum Starten';
         const introSkip = document.querySelector('.intro-skip');
         if (introSkip) introSkip.textContent = 'Tippe zum Überspringen';
         const endRestart = document.querySelector('.end-restart');
@@ -207,7 +208,7 @@ const Game = {
     advanceLoading() {
         if (this.loadingPhase >= this.loadingMessages.length) {
             const prompt = document.getElementById('start-prompt');
-            prompt.textContent = this._isTouchDevice() ? 'Tippe zum Starten' : 'Drücke ENTER zum Starten';
+            prompt.textContent = 'Tippe oder ENTER zum Starten';
             prompt.style.display = 'block';
             document.getElementById('fake-loading').style.display = 'none';
             return;
