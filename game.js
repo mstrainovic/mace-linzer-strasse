@@ -1226,10 +1226,10 @@ const Game = {
         if (r[0] === r[1] && r[1] === r[2]) {
             // Three of a kind
             switch (r[0]) {
-                case 0: winAmount = 50; winText = '📖📖📖 BOOK OF RA! 50€!'; break;
-                case 1: winAmount = 25; winText = '👑👑👑 PHARAO! 25€!'; break;
-                case 2: winAmount = 15; winText = '🪲🪲🪲 SKARABÄUS! 15€!'; break;
-                default: winAmount = 10; winText = '3x gleich! 10€!'; break;
+                case 0: winAmount = 100; winText = '📖📖📖 BOOK OF RA! 100€!'; break;
+                case 1: winAmount = 50; winText = '👑👑👑 PHARAO! 50€!'; break;
+                case 2: winAmount = 30; winText = '🪲🪲🪲 SKARABÄUS! 30€!'; break;
+                default: winAmount = 20; winText = '3x gleich! 20€!'; break;
             }
         } else if (r[0] === 0 || r[1] === 0 || r[2] === 0) {
             // At least one book = small consolation (2€)
