@@ -78,14 +78,23 @@ const Game = {
         });
 
         // Screen tap handlers — always active (keyboard + touch + mouse)
-        document.getElementById('title-screen').addEventListener('click', () => {
+        const titleScreenFn = (e) => {
             if (this.state === 'title' && this.loadingPhase >= this.loadingMessages.length) {
+                e.preventDefault();
                 this.startIntro();
             }
-        });
-        document.getElementById('intro-screen').addEventListener('click', () => {
-            if (this.state === 'intro') this.startGame();
-        });
+        };
+        document.getElementById('title-screen').addEventListener('touchstart', titleScreenFn, { passive: false });
+        document.getElementById('title-screen').addEventListener('click', titleScreenFn);
+
+        const introScreenFn = (e) => {
+            if (this.state === 'intro') {
+                e.preventDefault();
+                this.startGame();
+            }
+        };
+        document.getElementById('intro-screen').addEventListener('touchstart', introScreenFn, { passive: false });
+        document.getElementById('intro-screen').addEventListener('click', introScreenFn);
 
         this._bindTouchControls();
     },
