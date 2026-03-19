@@ -826,3 +826,133 @@ body.shaking {
 .hud-inventory.touch-shifted {
     bottom: 120px;
 }
+
+/* ===== SLOT MACHINE (Book of Ra) ===== */
+.slot-container {
+    background: linear-gradient(180deg, #1a0a00 0%, #3d1a00 30%, #1a0a00 100%);
+    border: 3px solid #ffd700;
+    border-radius: 16px;
+    padding: 20px;
+    max-width: 360px;
+    margin: 0 auto;
+    text-align: center;
+    box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.slot-title {
+    font-family: 'Courier New', monospace;
+    font-size: 1.5em;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    margin-bottom: 15px;
+    letter-spacing: 2px;
+}
+
+.slot-reels {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+}
+
+.slot-reel {
+    width: 80px;
+    height: 80px;
+    background: #0a0a2a;
+    border: 2px solid #b8860b;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5em;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.8);
+}
+
+.slot-reel-symbol {
+    transition: none;
+}
+
+.slot-reel-symbol.spinning {
+    animation: slotFlash 0.1s infinite;
+}
+
+@keyframes slotFlash {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.slot-info {
+    display: flex;
+    justify-content: space-between;
+    color: #ccc;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    margin-bottom: 10px;
+    padding: 0 10px;
+}
+
+.slot-info span {
+    color: #ffd700;
+}
+
+.slot-result {
+    font-family: 'Courier New', monospace;
+    font-size: 1.1em;
+    font-weight: bold;
+    min-height: 1.5em;
+    margin-bottom: 12px;
+}
+
+.slot-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 12px;
+}
+
+.slot-btn {
+    font-family: 'Courier New', monospace;
+    font-weight: bold;
+    font-size: 1em;
+    padding: 10px 20px;
+    border: 2px solid;
+    border-radius: 8px;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+    transition: transform 0.1s, background 0.1s;
+}
+
+.slot-btn:active {
+    transform: scale(0.92);
+}
+
+.slot-spin-btn {
+    background: rgba(255, 215, 0, 0.2);
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.slot-spin-btn:active {
+    background: rgba(255, 215, 0, 0.4);
+}
+
+.slot-exit-btn {
+    background: rgba(150, 150, 150, 0.2);
+    border-color: #888;
+    color: #aaa;
+}
+
+.slot-exit-btn:active {
+    background: rgba(150, 150, 150, 0.3);
+}
+
+.slot-paytable {
+    font-family: 'Courier New', monospace;
+    font-size: 0.65em;
+    color: #997a00;
+    border-top: 1px solid #333;
+    padding-top: 8px;
+    line-height: 1.6;
+}
