@@ -909,13 +909,15 @@ const NPCs = {
                     {
                         text: '*Schachtel einstecken* "Danke, Sultan."',
                         effect: { charm: 1 },
-                        callback: function() { PlayerStats.buffs.slotMachineLuck = true; },
                         next: 'gift_accepted'
                     }
                 ]
             },
             gift_accepted: {
-                text: function() { return '*Du hast Pajo\'s Marlboro-Schachtel in der Tasche. Du riechst bereits nach dem echten Wien. Der Automat wird das spüren.*'; },
+                text: function() {
+                    PlayerStats.buffs.slotMachineLuck = true;
+                    return '*Du hast Pajo\'s Marlboro-Schachtel in der Tasche. Du riechst bereits nach dem echten Wien. Der Automat wird das spüren.*';
+                },
                 choices: [
                     { text: '[Weiter]', effect: {}, next: null }
                 ]
