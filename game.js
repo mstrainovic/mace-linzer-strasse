@@ -86,8 +86,8 @@ const Game = {
                 this.startIntro();
             }
         };
-        document.getElementById('title-screen').addEventListener('touchstart', titleScreenFn, { passive: false });
-        document.getElementById('title-screen').addEventListener('click', titleScreenFn);
+        document.addEventListener('touchstart', titleScreenFn, { passive: false });
+        document.addEventListener('click', titleScreenFn);
 
         const introScreenFn = (e) => {
             if (this.state === 'intro') {
@@ -95,8 +95,8 @@ const Game = {
                 this.startGame();
             }
         };
-        document.getElementById('intro-screen').addEventListener('touchstart', introScreenFn, { passive: false });
-        document.getElementById('intro-screen').addEventListener('click', introScreenFn);
+        document.addEventListener('touchstart', introScreenFn, { passive: false });
+        document.addEventListener('click', introScreenFn);
 
         this._bindTouchControls();
     },
@@ -489,6 +489,7 @@ const Game = {
         // Remove any old skip handlers
         if (this._skipHandler) {
             dialogBox.removeEventListener('click', this._skipHandler);
+            dialogBox.removeEventListener('touchstart', this._skipHandler);
         }
 
         clearInterval(this.typewriterInterval);
@@ -505,7 +506,8 @@ const Game = {
             }
         }, 30);
 
-        this._skipHandler = () => {
+        this._skipHandler = (e) => {
+            if (e && e.type === 'touchstart') e.preventDefault();
             if (this.typewriterIndex < this.typewriterText.length) {
                 clearInterval(this.typewriterInterval);
                 dialogText.textContent = this.typewriterText;
@@ -516,8 +518,10 @@ const Game = {
                 }
             }
             dialogBox.removeEventListener('click', this._skipHandler);
+            dialogBox.removeEventListener('touchstart', this._skipHandler);
         };
         dialogBox.addEventListener('click', this._skipHandler);
+        dialogBox.addEventListener('touchstart', this._skipHandler, { passive: false });
     },
 
     showChoices(choices, npc) {
@@ -552,7 +556,7 @@ const Game = {
             }
 
             btn.innerHTML = choice.text + effectText;
-            btn.addEventListener('click', () => {
+            const choiceHandler = () => {
                 // Apply effects
                 if (choice.effect) {
                     Object.entries(choice.effect).forEach(([stat, val]) => {
@@ -584,7 +588,9 @@ const Game = {
                 } else {
                     this.closeDialog();
                 }
-            });
+            };
+            btn.addEventListener('click', choiceHandler);
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); choiceHandler(); }, { passive: false });
 
             dialogChoices.appendChild(btn);
         });
@@ -638,6 +644,7 @@ const Game = {
         const dialogBox = document.getElementById('dialog-box');
         if (this._skipHandler) {
             dialogBox.removeEventListener('click', this._skipHandler);
+            dialogBox.removeEventListener('touchstart', this._skipHandler);
             this._skipHandler = null;
         }
         dialogBox.classList.remove('active');
@@ -673,6 +680,7 @@ const Game = {
         // Remove any old skip handlers
         if (this._skipHandler) {
             dialogBox.removeEventListener('click', this._skipHandler);
+            dialogBox.removeEventListener('touchstart', this._skipHandler);
         }
 
         clearInterval(this.typewriterInterval);
@@ -689,7 +697,8 @@ const Game = {
             }
         }, 25);
 
-        this._skipHandler = () => {
+        this._skipHandler = (e) => {
+            if (e && e.type === 'touchstart') e.preventDefault();
             if (this.typewriterIndex < this.typewriterText.length) {
                 clearInterval(this.typewriterInterval);
                 dialogText.textContent = this.typewriterText;
@@ -700,8 +709,10 @@ const Game = {
                 }
             }
             dialogBox.removeEventListener('click', this._skipHandler);
+            dialogBox.removeEventListener('touchstart', this._skipHandler);
         };
         dialogBox.addEventListener('click', this._skipHandler);
+        dialogBox.addEventListener('touchstart', this._skipHandler, { passive: false });
     },
 
     showEventChoices(choices) {
@@ -722,7 +733,7 @@ const Game = {
             const btn = document.createElement('div');
             btn.className = 'dialog-choice';
             btn.textContent = choice.text;
-            btn.addEventListener('click', () => {
+            const eventChoiceHandler = () => {
                 if (choice.effect) {
                     Object.entries(choice.effect).forEach(([stat, val]) => {
                         PlayerStats.modify(stat, val);
@@ -734,7 +745,9 @@ const Game = {
                 const cb = choice.callback;
                 this.closeDialog();
                 if (cb) cb();
-            });
+            };
+            btn.addEventListener('click', eventChoiceHandler);
+            btn.addEventListener('touchstart', (e) => { e.preventDefault(); eventChoiceHandler(); }, { passive: false });
             dialogChoices.appendChild(btn);
         });
     },
@@ -969,14 +982,16 @@ const Game = {
                 }
             }, 50);
 
-            bill.addEventListener('click', () => {
+            const collectBill = () => {
                 if (bill.classList.contains('grabbed')) return;
                 bill.classList.add('grabbed');
                 recovered += billValue;
                 billsLeft--;
                 clearInterval(driftInterval);
                 if (billsLeft <= 0) endPickup();
-            });
+            };
+            bill.addEventListener('click', collectBill);
+            bill.addEventListener('touchstart', (e) => { e.preventDefault(); collectBill(); }, { passive: false });
 
             field.appendChild(bill);
         }
@@ -1143,14 +1158,17 @@ const Game = {
             const doRestart = () => {
                 document.removeEventListener('keydown', restartHandler);
                 endScreen.removeEventListener('click', tapRestart);
+                endScreen.removeEventListener('touchstart', tapTouchRestart);
                 endScreen.classList.remove('active');
                 this.canvas.style.display = 'none';
                 this.startTitleScreen();
             };
             const restartHandler = (e) => { if (e.key === 'Enter') doRestart(); };
             const tapRestart = () => doRestart();
+            const tapTouchRestart = (e) => { e.preventDefault(); doRestart(); };
             document.addEventListener('keydown', restartHandler);
-            if (this._isTouchDevice()) endScreen.addEventListener('click', tapRestart);
+            endScreen.addEventListener('click', tapRestart);
+            endScreen.addEventListener('touchstart', tapTouchRestart, { passive: false });
         }, 1000);
     }
 };
