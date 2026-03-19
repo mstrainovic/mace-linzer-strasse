@@ -12,7 +12,9 @@ const Renderer = {
 
     // Parallax layers
     stars: [],
+    farBuildings: [],
     buildings: [],
+    foregroundObjects: [],
     graffiti: [
         { x: 500, text: 'PHENO WAS HERE', color: '#00ff6688' },
         { x: 800, text: 'Mace war hier', color: '#ff336688' },
@@ -41,6 +43,8 @@ const Renderer = {
         this.resize();
         this.generateStars();
         this.generateBuildings();
+        this.generateFarBuildings();
+        this.generateForegroundObjects();
         this.graffiti.forEach(g => { g.rotation = -0.05 + (Math.random() - 0.5) * 0.1; });
         window.addEventListener('resize', () => this.resize());
     },
@@ -86,8 +90,37 @@ const Renderer = {
                     });
                 }
             }
-            this.buildings.push({ x, w, h, windows, color: `hsl(${220 + Math.random() * 20}, 15%, ${15 + Math.random() * 12}%)` });
+            const hue = 220 + Math.random() * 20;
+            const lit = 15 + Math.random() * 12;
+            this.buildings.push({ x, w, h, windows, color: `hsl(${hue}, 15%, ${lit}%)`, sideColor: `hsl(${hue}, 10%, ${Math.max(5, lit - 7)}%)` });
             x += w + 5 + Math.random() * 20;
+        }
+    },
+
+    generateFarBuildings() {
+        this.farBuildings = [];
+        let x = -300;
+        while (x < this.worldWidth + 400) {
+            const w = 50 + Math.random() * 90;
+            const h = 50 + Math.random() * 110;
+            const hue = 215 + Math.random() * 25;
+            const lit = 6 + Math.random() * 7;
+            this.farBuildings.push({ x, w, h, color: `hsl(${hue}, 8%, ${lit}%)`, sideColor: `hsl(${hue}, 6%, ${Math.max(2, lit - 4)}%)` });
+            x += w + 8 + Math.random() * 25;
+        }
+    },
+
+    generateForegroundObjects() {
+        this.foregroundObjects = [];
+        const npcXs = [600, 900, 1200, 1500, 1800, 2400, 2700, 3000, 3300, 3600, 4200];
+        let x = 380;
+        while (x < this.worldWidth - 200) {
+            const tooClose = npcXs.some(nx => Math.abs(x - nx) < 130);
+            if (!tooClose) {
+                const type = Math.random() < 0.65 ? 'trash' : 'hydrant';
+                this.foregroundObjects.push({ type, x });
+            }
+            x += 240 + Math.random() * 220;
         }
     },
 
@@ -110,6 +143,7 @@ const Renderer = {
         const steps = [
             ['drawSky', () => this.drawSky()],
             ['drawStars', () => this.drawStars()],
+            ['drawFarBuildings', () => this.drawFarBuildings()],
             ['drawBuildings', () => this.drawBuildings()],
             ['drawGraffiti', () => this.drawGraffiti()],
             ['drawStreet', () => this.drawStreet()],
@@ -118,6 +152,7 @@ const Renderer = {
             ['drawNPCs', () => this.drawNPCs(npcs)],
             ['drawPlayer', () => this.drawPlayer(player)],
             ['drawPigeon', () => this.drawPigeon(player)],
+            ['drawForeground', () => this.drawForeground()],
             ['drawNightOverlay', () => this.drawNightOverlay()],
             ['drawInteractionPrompt', () => this.drawInteractionPrompt(player, npcs)]
         ];
@@ -162,6 +197,27 @@ const Renderer = {
         });
     },
 
+    drawFarBuildings() {
+        const { ctx } = this;
+        const P = 0.22;
+        this.farBuildings.forEach(b => {
+            const bx = b.x * P - this.cameraX * P;
+            if (bx + b.w < -10 || bx > this.width + 10) return;
+            const by = this.groundY - b.h;
+            ctx.globalAlpha = 0.55;
+            // Front face
+            ctx.fillStyle = b.color;
+            ctx.fillRect(bx, by, b.w, b.h);
+            // Side face (right, darker)
+            ctx.fillStyle = b.sideColor;
+            ctx.fillRect(bx + b.w, by, 5, b.h);
+            // Roof
+            ctx.fillStyle = `hsl(220, 6%, 4%)`;
+            ctx.fillRect(bx - 1, by - 3, b.w + 6, 4);
+            ctx.globalAlpha = 1;
+        });
+    },
+
     drawBuildings() {
         const { ctx } = this;
         this.buildings.forEach(b => {
@@ -173,9 +229,16 @@ const Renderer = {
             ctx.fillStyle = b.color;
             ctx.fillRect(bx, by, b.w, b.h);
 
+            // 3D side face (right edge, darker)
+            ctx.fillStyle = b.sideColor;
+            ctx.fillRect(bx + b.w, by, 8, b.h);
+
             // Roof
             ctx.fillStyle = `hsl(220, 15%, 8%)`;
-            ctx.fillRect(bx - 2, by - 5, b.w + 4, 8);
+            ctx.fillRect(bx - 2, by - 5, b.w + 10, 8);
+            // Roof side top
+            ctx.fillStyle = `hsl(220, 10%, 5%)`;
+            ctx.fillRect(bx + b.w, by - 5, 8, 8);
 
             // Windows
             b.windows.forEach(w => {
@@ -236,6 +299,32 @@ const Renderer = {
         }
         ctx.stroke();
         ctx.setLineDash([]);
+
+        // Sidewalk pavement tile lines (depth illusion)
+        ctx.strokeStyle = 'rgba(85,85,85,0.4)';
+        ctx.lineWidth = 1;
+        const tileW = 72;
+        const tileOff = -(this.cameraX % tileW);
+        for (let x = tileOff; x < width + tileW; x += tileW) {
+            ctx.beginPath();
+            ctx.moveTo(x, groundY);
+            ctx.lineTo(x, groundY + 17);
+            ctx.stroke();
+        }
+        // Horizontal mid-line on sidewalk
+        ctx.beginPath();
+        ctx.moveTo(0, groundY + 9);
+        ctx.lineTo(width, groundY + 9);
+        ctx.stroke();
+
+        // Road grid lines (subtle depth)
+        ctx.strokeStyle = 'rgba(45,45,45,0.5)';
+        for (let x = tileOff; x < width + tileW; x += tileW) {
+            ctx.beginPath();
+            ctx.moveTo(x, groundY + 23);
+            ctx.lineTo(x, height);
+            ctx.stroke();
+        }
 
         // Curb
         ctx.fillStyle = '#666';
@@ -1202,6 +1291,78 @@ const Renderer = {
         }
 
         ctx.restore();
+    },
+
+    drawForeground() {
+        const { ctx } = this;
+        const P = 1.1;
+        this.foregroundObjects.forEach(obj => {
+            const ox = obj.x * P - this.cameraX * P;
+            if (ox < -80 || ox > this.width + 80) return;
+            if (obj.type === 'trash') {
+                this.drawTrashCan(ctx, ox, this.groundY);
+            } else {
+                this.drawHydrant(ctx, ox, this.groundY);
+            }
+        });
+    },
+
+    drawTrashCan(ctx, x, y) {
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(x, y - 1, 15, 5, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Side face (right, 3D)
+        ctx.fillStyle = '#333';
+        ctx.fillRect(x + 11, y - 38, 5, 37);
+        // Front face
+        ctx.fillStyle = '#4a4a4a';
+        ctx.fillRect(x - 11, y - 38, 22, 37);
+        // Highlight strip
+        ctx.fillStyle = '#5a5a5a';
+        ctx.fillRect(x - 9, y - 36, 4, 33);
+        // Lid top
+        ctx.fillStyle = '#555';
+        ctx.fillRect(x - 12, y - 43, 28, 6);
+        // Lid side
+        ctx.fillStyle = '#3a3a3a';
+        ctx.fillRect(x + 16, y - 43, 4, 6);
+        // Handle
+        ctx.strokeStyle = '#2a2a2a';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(x + 2, y - 45, 6, Math.PI, 0);
+        ctx.stroke();
+    },
+
+    drawHydrant(ctx, x, y) {
+        // Shadow
+        ctx.fillStyle = 'rgba(0,0,0,0.25)';
+        ctx.beginPath();
+        ctx.ellipse(x, y - 1, 13, 4, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Side face (right, darker red)
+        ctx.fillStyle = '#922b21';
+        ctx.fillRect(x + 8, y - 30, 5, 30);
+        // Base
+        ctx.fillStyle = '#c0392b';
+        ctx.fillRect(x - 10, y - 8, 20, 8);
+        // Body
+        ctx.fillRect(x - 8, y - 30, 16, 24);
+        // Top dome
+        ctx.beginPath();
+        ctx.arc(x, y - 30, 8, Math.PI, 0);
+        ctx.fill();
+        // Side outlets
+        ctx.fillStyle = '#a93226';
+        ctx.fillRect(x - 14, y - 22, 6, 7);
+        ctx.fillRect(x + 8, y - 22, 6, 7);
+        // Top cap
+        ctx.fillStyle = '#7b241c';
+        ctx.beginPath();
+        ctx.arc(x, y - 34, 5, 0, Math.PI * 2);
+        ctx.fill();
     },
 
     drawNightOverlay() {
