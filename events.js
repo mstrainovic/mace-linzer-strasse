@@ -127,6 +127,9 @@ const RandomEvents = {
                 if (success) {
                     gameRef.showAchievement('Smooth Criminal');
                     PlayerStats.modify('charm', 1);
+                    PlayerStats.buffs.speedBoost = true;
+                    PlayerStats.buffs.speedBoostEndTime = Date.now() + 30000;
+                    gameRef.showFloatingText('⚡ Adrenalinstoß! Beine auf Turbo!');
                 } else {
                     PlayerStats.modify('embarrassment', 3);
                     PlayerStats.modify('selfRespect', -1);

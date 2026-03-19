@@ -11,6 +11,11 @@ const PlayerStats = {
     donerEaten: false,
     inesAgreed: false,
     chosenNPC: null,
+    buffs: {
+        slotMachineLuck: false,
+        speedBoost: false,
+        speedBoostEndTime: 0
+    },
 
     reset() {
         this.money = 150;
@@ -23,6 +28,11 @@ const PlayerStats = {
         this.donerEaten = false;
         this.inesAgreed = false;
         this.chosenNPC = null;
+        this.buffs = {
+            slotMachineLuck: false,
+            speedBoost: false,
+            speedBoostEndTime: 0
+        };
     },
 
     modify(stat, amount) {
@@ -871,7 +881,25 @@ const NPCs = {
             response_majestaet: {
                 text: function() { return '"HA! Endlich Respekt! *richtet imaginäre Krone* Als Sultan verfüge ich: Mahngebühren sind ab sofort ABGESCHAFFT. *Marlboro fällt runter* Scheiße. Das war meine vorletzte."'; },
                 choices: [
-                    { text: '"Majestätisch."', effect: { charm: 1 }, next: null }
+                    { text: '"Majestätisch."', effect: { charm: 1 }, next: null },
+                    { text: '"Gibst du mir die ganze Schachtel?"', effect: {}, next: 'gift_cigarettes' }
+                ]
+            },
+            gift_cigarettes: {
+                text: function() { return '*Pajo schaut ihn lange an, zieht tief an seiner vorletzten Marlboro, seufzt... und reicht ihm die fast volle Schachtel* "Nimm. Ein Sultan teilt. Du schuldest mir nix – weil du nix hast. Das ist echter Respekt."'; },
+                choices: [
+                    {
+                        text: '*Schachtel einstecken* "Danke, Sultan."',
+                        effect: { charm: 1 },
+                        callback: function() { PlayerStats.buffs.slotMachineLuck = true; },
+                        next: 'gift_accepted'
+                    }
+                ]
+            },
+            gift_accepted: {
+                text: function() { return '*Du hast Pajo\'s Marlboro-Schachtel in der Tasche. Du riechst bereits nach dem echten Wien. Der Automat wird das spüren.*'; },
+                choices: [
+                    { text: '[Weiter]', effect: {}, next: null }
                 ]
             },
             response_dirty: {
