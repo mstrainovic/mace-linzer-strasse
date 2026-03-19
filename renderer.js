@@ -41,6 +41,7 @@ const Renderer = {
         this.resize();
         this.generateStars();
         this.generateBuildings();
+        this.graffiti.forEach(g => { g.rotation = -0.05 + (Math.random() - 0.5) * 0.1; });
         window.addEventListener('resize', () => this.resize());
     },
 
@@ -50,6 +51,7 @@ const Renderer = {
         this.canvas.width = this.width;
         this.canvas.height = this.height;
         this.groundY = this.height * 0.75;
+        if (this.stars.length > 0) this.generateStars();
     },
 
     generateStars() {
@@ -79,7 +81,8 @@ const Renderer = {
                         rx: 10 + wx * (w / numWin),
                         ry: 15 + fy * 40,
                         lit: Math.random() > 0.6,
-                        flicker: Math.random() * Math.PI * 2
+                        flicker: Math.random() * Math.PI * 2,
+                        warmth: Math.random() > 0.5 ? '255, 220, 100' : '200, 180, 255'
                     });
                 }
             }
@@ -180,7 +183,7 @@ const Renderer = {
                 const wy = by + w.ry;
                 if (w.lit) {
                     const flicker = Math.sin(Date.now() * 0.002 + w.flicker) * 0.1 + 0.9;
-                    const warmth = Math.random() > 0.5 ? '255, 220, 100' : '200, 180, 255';
+                    const warmth = w.warmth;
                     ctx.fillStyle = `rgba(${warmth}, ${0.6 * flicker * (1 - this.time * 0.5)})`;
                     ctx.shadowColor = `rgba(${warmth}, 0.3)`;
                     ctx.shadowBlur = 8;
@@ -203,7 +206,7 @@ const Renderer = {
             ctx.font = '14px Courier New';
             ctx.fillStyle = g.color;
             ctx.translate(gx, this.groundY - 30);
-            ctx.rotate(-0.05 + Math.random() * 0.001);
+            ctx.rotate(g.rotation);
             ctx.fillText(g.text, 0, 0);
             ctx.restore();
         });
@@ -554,7 +557,6 @@ const Renderer = {
             // Name label
             if (!npc.interacted || key === 'oma' || key === 'vedro' || key === 'pajo') {
                 ctx.fillStyle = 'rgba(0,0,0,0.6)';
-                const nameWidth = ctx.measureText(npc.name).width;
                 ctx.font = '11px Courier New';
                 const measuredWidth = ctx.measureText(npc.name).width;
                 ctx.fillRect(-measuredWidth / 2 - 5, -npc.height - 30 + bob, measuredWidth + 10, 18);
@@ -1213,6 +1215,7 @@ const Renderer = {
 
     drawInteractionPrompt(player, npcs) {
         const { ctx } = this;
+        const pulseAlpha = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
 
         // Slot machine prompt
         if (Math.abs(player.x - this.slotMachineX) < 60) {
@@ -1221,7 +1224,6 @@ const Renderer = {
             ctx.fillStyle = 'rgba(255, 215, 0, 0.9)';
             ctx.font = 'bold 14px Courier New';
             ctx.textAlign = 'center';
-            const pulseAlpha = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
             ctx.globalAlpha = pulseAlpha;
             ctx.fillText('[E] Book of Ra', smx, this.groundY - 100);
             ctx.globalAlpha = 1;
@@ -1239,7 +1241,6 @@ const Renderer = {
                 ctx.font = 'bold 14px Courier New';
                 ctx.textAlign = 'center';
 
-                const pulseAlpha = Math.sin(Date.now() * 0.005) * 0.3 + 0.7;
                 ctx.globalAlpha = pulseAlpha;
                 ctx.fillText('[E] Ansprechen', nx, promptY);
                 ctx.globalAlpha = 1;

@@ -463,7 +463,7 @@ const Game = {
         document.getElementById('hud-time').textContent = timeStr;
 
         // Buff-Anzeige aktualisieren
-        const buffsEl = document.getElementById('hud-buffs');
+        const buffsEl = this._buffsEl || (this._buffsEl = document.getElementById('hud-buffs'));
         if (buffsEl) {
             let buffText = '';
             if (PlayerStats.buffs.slotMachineLuck) buffText += '🚬 Pajo\'s Glück  ';
@@ -569,7 +569,7 @@ const Game = {
         this.typewriterText = text;
         this.typewriterIndex = 0;
         dialogText.textContent = '';
-        this._npcChoicesShown = false;
+        this._choicesShown = false;
 
         // Remove any old skip handlers
         if (this._skipHandler) {
@@ -584,8 +584,8 @@ const Game = {
                 this.typewriterIndex++;
             } else {
                 clearInterval(this.typewriterInterval);
-                if (choices && !this._npcChoicesShown) {
-                    this._npcChoicesShown = true;
+                if (choices && !this._choicesShown) {
+                    this._choicesShown = true;
                     this.showChoices(choices, npc);
                 }
             }
@@ -597,8 +597,8 @@ const Game = {
                 clearInterval(this.typewriterInterval);
                 dialogText.textContent = this.typewriterText;
                 this.typewriterIndex = this.typewriterText.length;
-                if (choices && !this._npcChoicesShown) {
-                    this._npcChoicesShown = true;
+                if (choices && !this._choicesShown) {
+                    this._choicesShown = true;
                     this.showChoices(choices, npc);
                 }
             }
@@ -759,7 +759,7 @@ const Game = {
         this.typewriterText = text;
         this.typewriterIndex = 0;
         dialogText.textContent = '';
-        this._eventChoicesShown = false;
+        this._choicesShown = false;
 
         // Remove any old skip handlers
         if (this._skipHandler) {
@@ -774,8 +774,8 @@ const Game = {
                 this.typewriterIndex++;
             } else {
                 clearInterval(this.typewriterInterval);
-                if (!this._eventChoicesShown) {
-                    this._eventChoicesShown = true;
+                if (!this._choicesShown) {
+                    this._choicesShown = true;
                     this.showEventChoices(processedChoices);
                 }
             }
@@ -787,8 +787,8 @@ const Game = {
                 clearInterval(this.typewriterInterval);
                 dialogText.textContent = this.typewriterText;
                 this.typewriterIndex = this.typewriterText.length;
-                if (!this._eventChoicesShown) {
-                    this._eventChoicesShown = true;
+                if (!this._choicesShown) {
+                    this._choicesShown = true;
                     this.showEventChoices(processedChoices);
                 }
             }
@@ -1275,7 +1275,7 @@ const Game = {
     showFloatingText(text) {
         this.floatingTexts.push({
             text,
-            x: this.width / 2,
+            x: Renderer.width / 2,
             y: Renderer.height / 2,
             alpha: 1,
             time: Date.now()
