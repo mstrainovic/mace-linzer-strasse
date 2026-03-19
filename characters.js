@@ -40,6 +40,7 @@ const NPC_POSITIONS = {
     brenda: 1200,
     klaus: 1800,
     twins: 2400,
+    lehel: 2700,
     oma: 3000,
     ines: 3600,
     erscheinung: 4200
@@ -337,6 +338,124 @@ const NPCs = {
                 text: function() { return '*synchron* "Schade." "Sehr schade." "Wir waren so nah." "So nah." *identisches Seufzen*'; },
                 choices: [
                     { text: 'Weggehen... schnell', effect: {}, next: null }
+                ]
+            }
+        }
+    },
+
+    lehel: {
+        name: 'Lehel Bimre (LGT)',
+        price: 100,
+        x: NPC_POSITIONS.lehel,
+        color: '#5dade2',
+        width: 28,
+        height: 63,
+        interacted: false,
+        haggleSuccess: false,
+        description: 'Ungar im Brioni-Anzug, tippt nervös auf Smartphone',
+        sprite: 'lehel',
+        dialog: {
+            greeting: {
+                text: function() { return PlayerStats.konamiActive
+                    ? '"Ah! Guten Abend, werter Herr! Lehel Bimre, LGT Private Banking. Ein Mann mit Stil – sprechen wir über Portfolio-Optimierung."'
+                    : '"*tippt auf Smartphone* ...Kati, ich hab dir gesagt— *sieht Mace* Oh! Guten Abend! Lehel Bimre, Senior Relationship Manager, LGT Bank. Kann ich Ihnen behilflich sein?"'; },
+                choices: [
+                    {
+                        text: 'A) "Was macht ein Banker um 2 Uhr nachts auf der Linzer Straße?"',
+                        effect: { charm: 1 },
+                        next: 'response_why'
+                    },
+                    {
+                        text: 'B) "LGT? Die Liechtensteinische Globalbank?"',
+                        effect: { charm: 2 },
+                        next: 'response_bank'
+                    },
+                    {
+                        text: 'C) "Kein Interesse."',
+                        effect: {},
+                        next: null
+                    }
+                ]
+            },
+            response_why: {
+                text: function() { return '"Netzwerkpflege, mein Freund! Private Banking schläft nie. Meine... Portfoliounternehmen sind vorwiegend nachtaktiv. Ich betreue sie persönlich. Full-Service-Banking."'; },
+                choices: [
+                    { text: 'A) "Portfoliounternehmen? Nachts? Auf der Linzer Straße?"', effect: { charm: 1 }, next: 'response_portfolio' },
+                    { text: 'B) "*versteht plötzlich* Oh. OHHH."', effect: { desperation: 1 }, next: 'response_dawns' }
+                ]
+            },
+            response_bank: {
+                text: function() { return '"Genau! LGT – seit 1920 der Liechtensteinischen Fürstenfamilie verpflichtet. Wir bieten diskrete Lösungen für... diversifizierte Portfolios. *räuspert sich* Sehr diversifiziert."'; },
+                choices: [
+                    { text: 'A) "Was meinen Sie mit \'diversifiziert\'?"', effect: {}, next: 'response_portfolio' },
+                    { text: 'B) "Sie sehen nicht aus wie ein typischer Banker."', effect: { charm: 1 }, next: 'response_looks' }
+                ]
+            },
+            response_looks: {
+                text: function() { return '"Ha! Das sagen alle. Aber ich trage einen Brioni-Anzug, mein Freund! Mein Vater hat gesagt: \'Lehel, in Debrecen war man arm. In Wien trägt man Brioni.\' Er hatte Recht."'; },
+                choices: [
+                    { text: 'A) "Debrecen? Ungarn?"', effect: { charm: 1 }, next: 'response_hungary' },
+                    { text: 'B) "Was machen Sie hier wirklich?"', effect: { selfRespect: 1 }, next: 'response_portfolio' }
+                ]
+            },
+            response_hungary: {
+                text: function() { return '"Ja! Schöne Stadt. Ich kam 2008 nach Wien – genau zur Finanzkrise. Perfektes Timing, oder? *lacht nervös* Seitdem... diversifiziere ich. Wie man es muss, wenn man die Miete zahlen will."'; },
+                choices: [
+                    { text: 'A) "Diversifizieren als Euphemismus für...?"', effect: { charm: 1 }, next: 'response_dawns' }
+                ]
+            },
+            response_portfolio: {
+                text: function() { return '"Human Capital Portfolio Management. Hochrentable Assets, alle mit ausgezeichneten Fundamentaldaten. Beziehungsoptimierung, Liquiditätslösungen, und persönliche Dienstleistungen. Alles GDPR-konform. Meistens."'; },
+                choices: [
+                    { text: 'A) "Das sind Prostituierte, oder?"', effect: { selfRespect: 1 }, next: 'response_busted' },
+                    { text: 'B) "Ich bin interessiert."', effect: { desperation: 1 }, next: 'offer' }
+                ]
+            },
+            response_dawns: {
+                text: function() { return '"Ich sehe, Sie sind ein junger Mann von Welt. Ja. Meine Portfolio-Unternehmen bieten... Dienstleistungen an. Ich bin der Relationship Manager. Auf Provisionsbasis. Das ist vollkommen legal. In manchen Kantonen."'; },
+                choices: [
+                    { text: 'A) "\'In manchen Kantonen\'?!"', effect: { desperation: 1 }, next: 'response_legal' },
+                    { text: 'B) "Okay, was kostet das?"', effect: { desperation: 2 }, next: 'offer' }
+                ]
+            },
+            response_legal: {
+                text: function() { return '"Steuerrechtlich ist das eine Grauzone. Ethisch... ein mittleres Grau. Hören Sie, in Ungarn sagt man: \'Basszameg, Lehel, hör auf zu reden!\' Das sagt meine Mutter. Sie hat Recht."'; },
+                choices: [
+                    { text: 'A) "Ich mag Ihre Ehrlichkeit."', effect: { charm: 2 }, next: 'offer' },
+                    { text: 'B) Weggehen', effect: {}, next: null }
+                ]
+            },
+            response_busted: {
+                text: function() { return '"*Handy klingelt* Entschuldigung— *flüstert* Kati! Nicht anrufen wenn ich im Business Development bin! *auflegen* Wo waren wir... \'Prostituierte\' ist ein sehr vulgärer Begriff für mein Portfolio."'; },
+                choices: [
+                    { text: 'A) "Welchen Begriff bevorzugen Sie?"', effect: { charm: 2 }, next: 'response_term' },
+                    { text: 'B) "Was kostet eine... Asset-Akquisition?"', effect: { desperation: 2 }, next: 'offer' }
+                ]
+            },
+            response_term: {
+                text: function() { return '"\'Freiberufliche Dienstleisterinnen im Nachtgewerbe mit provisionsbasiertem Vertriebsmanagement\'. Das habe ich meinem Steuerberater erklärt. Er hat geweint und dann die Kanzlei gewechselt."'; },
+                choices: [
+                    { text: 'A) "Wie viel?"', effect: { desperation: 1 }, next: 'offer' }
+                ]
+            },
+            offer: {
+                text: function() { return '"100 Euro. Premium-Portfolio. Starke Fundamentaldaten, ausgezeichnete Track-Record, und – ich zitiere mein eigenes Reporting – \'übertrifft alle KPIs\'."'; },
+                choices: [
+                    { text: 'A) "Deal!" (100 EUR)', effect: {}, next: 'haggle', action: 'haggle' },
+                    { text: 'B) "Kann man feilschen?"', effect: { desperation: 1 }, next: 'haggle', action: 'haggle' },
+                    { text: 'C) Nein danke', effect: {}, next: null }
+                ]
+            },
+            accept: {
+                text: function() { return '"Ausgezeichnet! Willkommen als neuer Client. *schüttelt Hand sehr fest* In Ungarn schütteln wir fest. Wort ist Wort. Meine Compliance-Abteilung... existiert nicht. Aber mein Wort schon."'; },
+                choices: [
+                    { text: '...was mache ich hier eigentlich', effect: {}, next: null, action: 'end_adventurer' }
+                ]
+            },
+            reject: {
+                text: function() { return '"Sehr bedauerlich. Meine Performance-Zahlen konnten Ihre Due-Diligence nicht überzeugen? *gibt Visitenkarte* Lehel Bimre, LGT. Rufen Sie an wenn Sie liquide sind. Oder einsam. Beides ist okay."'; },
+                choices: [
+                    { text: 'Weggehen (mit Visitenkarte)', effect: { desperation: 1 }, next: null }
                 ]
             }
         }
