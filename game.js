@@ -79,8 +79,10 @@ const Game = {
 
         // Screen tap handlers — always active (keyboard + touch + mouse)
         const titleScreenFn = (e) => {
-            if (this.state === 'title' && this.loadingPhase >= this.loadingMessages.length) {
+            if (this.state === 'title') {
                 e.preventDefault();
+                // Skip remaining loading if still in progress
+                this.loadingPhase = this.loadingMessages.length;
                 this.startIntro();
             }
         };
@@ -173,7 +175,8 @@ const Game = {
 
         switch (this.state) {
             case 'title':
-                if (key === 'Enter' && this.loadingPhase >= this.loadingMessages.length) {
+                if (key === 'Enter') {
+                    this.loadingPhase = this.loadingMessages.length;
                     this.startIntro();
                 }
                 break;
