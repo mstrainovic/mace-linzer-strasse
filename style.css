@@ -213,6 +213,19 @@ canvas {
 .inv-label { color: #999; }
 .inv-items { color: #aaa; }
 
+.hud-buffs {
+    position: fixed;
+    bottom: 40px;
+    left: 20px;
+    background: rgba(0,0,0,0.75);
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 0.85em;
+    color: #ffdd44;
+    letter-spacing: 0.05em;
+}
+
 /* ===== DIALOG BOX ===== */
 #dialog-box {
     z-index: 30;

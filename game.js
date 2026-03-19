@@ -23,7 +23,7 @@ const Game = {
 
     // Timer
     gameTime: 0,
-    totalGameTime: 180, // 3 minutes in seconds
+    totalGameTime: 480, // 8 minutes in seconds
     gameStartTime: Date.now(),
     fictionalHour: 2,
     fictionalMinute: 0,
@@ -398,6 +398,16 @@ const Game = {
     updatePlayer() {
         let moving = false;
 
+        // Speed buff: doppelte Geschwindigkeit für 30s nach Polizei-Flucht
+        if (PlayerStats.buffs.speedBoost) {
+            if (Date.now() < PlayerStats.buffs.speedBoostEndTime) {
+                this.player.speed = 6;
+            } else {
+                this.player.speed = 3;
+                PlayerStats.buffs.speedBoost = false;
+            }
+        }
+
         if (this.keys['ArrowLeft'] || this.keys['a']) {
             this.player.x -= this.player.speed;
             this.player.facing = -1;
@@ -451,6 +461,19 @@ const Game = {
 
         const timeStr = `${String(this.fictionalHour).padStart(2, '0')}:${String(this.fictionalMinute).padStart(2, '0')}`;
         document.getElementById('hud-time').textContent = timeStr;
+
+        // Buff-Anzeige aktualisieren
+        const buffsEl = document.getElementById('hud-buffs');
+        if (buffsEl) {
+            let buffText = '';
+            if (PlayerStats.buffs.slotMachineLuck) buffText += '🚬 Pajo\'s Glück  ';
+            if (PlayerStats.buffs.speedBoost && Date.now() < PlayerStats.buffs.speedBoostEndTime) {
+                const secs = Math.ceil((PlayerStats.buffs.speedBoostEndTime - Date.now()) / 1000);
+                buffText += `⚡ Speed (${secs}s)`;
+            }
+            buffsEl.textContent = buffText;
+            buffsEl.style.display = buffText ? 'block' : 'none';
+        }
 
         // Time's up
         if (this.gameTime >= this.totalGameTime && this.state === 'playing') {
@@ -1144,7 +1167,10 @@ const Game = {
         // Pre-determine results (weighted)
         const syms = this.slotData.symbols;
         // Weight: Q/K/A more common, Book/Pharaoh/Scarab rarer
-        const weights = [2, 3, 4, 8, 8, 8]; // book, pharaoh, scarab, A, K, Q
+        // Pajo's Luck Buff erhöht 👑 (Kronen) Gewicht von 3 auf 9
+        const weights = PlayerStats.buffs.slotMachineLuck
+            ? [2, 9, 4, 8, 8, 8]
+            : [2, 3, 4, 8, 8, 8]; // book, pharaoh, scarab, A, K, Q
         const pick = () => {
             const total = weights.reduce((a, b) => a + b, 0);
             let r = Math.random() * total;
@@ -1155,6 +1181,9 @@ const Game = {
             return weights.length - 1;
         };
         this.slotData.results = [pick(), pick(), pick()];
+        if (PlayerStats.buffs.slotMachineLuck) {
+            this.showFloatingText('🚬 Pajo\'s Glück wirkt!');
+        }
 
         this._animateSlotReels();
     },
