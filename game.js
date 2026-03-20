@@ -1426,4 +1426,8 @@ const Game = {
 // ===== START =====
 window.addEventListener('load', () => {
     Game.init();
+    // Expose globals for Playwright tests
+    window.Game = Game;
+    window.PlayerStats = PlayerStats;
+    window.NPCs = NPCs;
 });
